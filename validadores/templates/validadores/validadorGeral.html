@@ -1,0 +1,92 @@
+{% extends 'home/base.html' %}
+{% block content %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Validador Geral</title>
+    <!-- Importa o bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .error-details {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="mt-5"> Geral</h1>
+        <form method="post" class="mt-5">
+            {% csrf_token %}
+            <div class="form-group d-flex align-items-center">
+                <label for="refs" class="mr-5" style="margin-right: 10px;">Referências</label>
+                <input type="text" name="refs" id="refs" class="form-control mr-2" required style="width: auto; margin-right: 20px;" placeholder="separadas por virgula">
+                <label for="version" class="mr-2" style="margin-right: 10px;">Versão</label>
+                <input type="text" name="version" id="version" class="form-control mr-2" style="width: auto; margin-right: 10px;">
+                <button type="submit" class="btn btn-primary btn-sm">Validar</button>
+            </div>
+        </form>
+    </div>
+    
+    <div class="container mt-5">
+
+        {% if dados %}
+
+            {% if total > 0 %}
+            <h2>Erros</h2>
+            <div class="alert alert-danger" role="alert">
+                Existem {{ total }} erros
+            </div>
+            <ul class="list-group mt-3 ">
+                {% for ref, errors in erros.items %}
+                <!--vERIFICA SE O ERRO DE PARENT É MAIOR QUE 0 OU SE O DE DATA É MAIOR QUE ZERO-->
+                {% if errors.parent_errors|length > 0 or errors.da_entrada_errors|length > 0 %}
+                    <li class="list-group-item alert alert-danger">
+                        Referência: {{ ref }} - Erros de Parent: {{ errors.parent_errors|length }} - Erros de Da Entrada: {{ errors.da_entrada_errors|length }}
+                        <button class="btn btn-link" onclick="toggleDetails('{{ ref }}')">Ver Erros</button>
+                        <div id="details-{{ ref }}" class="error-details mt-2 alert alert-danger">
+                            {% if errors.parent_errors %}
+                                <h5>Erros de Parent</h5>
+                                <ul>
+                                    {% for erro in errors.parent_errors %}
+                                        <li>{{ erro }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+                            {% if errors.da_entrada_errors %}
+                                <h5>Erros de Da Entrada</h5>
+                                <ul>
+                                    {% for erro in errors.da_entrada_errors %}
+                                        <li>{{ erro }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+                        </div>
+                    </li>
+                {% endif %}
+                {% endfor %}
+            </ul>
+            {% else %}
+            <div class="alert alert-success mt-3" role="alert">
+                <h4 class="alert-heading">Sucesso</h4>
+                <p>Não foram encontrados erros para as referências informadas</p>
+            {% endif %}
+        {% endif %}
+    </div>
+
+
+    <script>
+        function toggleDetails(ref) {
+            const details = document.getElementById(`details-${ref}`);
+            if (details.style.display === "none") {
+                details.style.display = "block";
+            } else {
+                details.style.display = "none";
+            }
+        }
+    </script>
+    
+</body>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+</html>
+{% endblock %}

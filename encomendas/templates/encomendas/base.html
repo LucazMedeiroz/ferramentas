@@ -1,0 +1,164 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Gestão de Encomendas{% endblock %}</title>
+    <!-- Importar cdn Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- CSS do Select2 -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-beta.1/css/select2.min.css" rel="stylesheet" />
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .container_per {
+            margin-top: 20px;
+            max-width: 75%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        footer {
+            bottom: 0;
+            width: 100%;
+            position: fixed;
+            padding: 10px 0;
+            margin-top: 40px;
+        }
+
+        #main_table_form .select2 .select2-selection {
+            padding-top: 5px;
+            height: 35px !important;
+            background: #ffffff !important;
+            border-color: #334050 !important;
+            border-radius: 1px !important;
+            align-items: center;
+        }
+
+        #main_table_form .select2-container .select2-selection--single {
+            height: 35px !important;
+            border: rgba(214, 214, 214, 0.308) 1px solid;
+
+        }
+
+        #main_table_form .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 35px !important;
+        }
+
+        #main_table_form .select2-container .select2-selection__rendered {
+            background: transparent !important;
+            color: #000000 !important;
+        }
+
+        #main_table_form .select2-container--default .select2-selection--single .select2-selection__arrow {
+            top: 5px !important;
+        }
+
+        .select2-results {
+            background: #fdfdfd !important;
+            border-color: #334050 !important;
+            
+
+        }
+
+        .scFormPage .select2-container .select2-dropdown {
+            border-color: #334050 !important;
+        }
+
+        .select2-dropdown {
+            border-radius: 0 0 10px 10px !important;
+            overflow: hidden !important;
+        }
+
+        .select2-container--default .select2-search--dropdown .select2-search__field {
+            background: #d9eaff !important;
+            border-color: #334050 !important;
+            border-radius: 10px !important;
+        }
+
+        .select2-search--dropdown {
+            background: #d9eaff !important;
+            border: #000000 1px solid;
+
+        }
+                /* Estilo para remover o 'x' */
+        .select2-container--default .select2-selection--single .select2-selection__clear {
+            display: none !important;
+        }
+
+        
+
+        /*Borda preta */
+
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <div class="nav-item dropdown">
+                <a class="navbar-brand dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    Validadores de Gamas
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <li><a class="dropdown-item" href="{% url 'validadorGeral' %}">Validador Geral</a></li>
+                    <li><a class="dropdown-item" href="{% url 'validadorView' %}">Validador do Da Entrada</a></li>
+                    <li><a class="dropdown-item" href="{% url 'validadorparent' %}">Validador do Parent</a></li>
+                    <li><a class="dropdown-item" href="{% url 'validadorOF' %}">Validador de OF</a></li>
+                    <li><a class="dropdown-item" href="{% url 'historico' %}">Historico</a></li>
+                    {% if user.is_superuser %}
+                    <li><a class="dropdown-item" href="{% url 'admin:index' %}">Admin</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarText">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0"></ul>
+                <span class="navbar-text">
+                    <a href="{% url 'logout' %}" class="nav-link">Logout</a>
+                </span>
+            </div>
+        </div>
+    </nav>
+    <div id="main_table_form" class="container_per mb-5">
+        {% block content %}
+        {% endblock %}
+    </div>
+    <!-- Importar cdn jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <!-- Importar cdn Popper.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <!-- Importar cdn Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Importar Select2 JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-beta.1/js/select2.min.js"></script>
+    <!-- Importar Clipboard.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var detailButtons = document.querySelectorAll('.btn-info');
+            detailButtons.forEach(function(button) {
+                button.addEventListener('click', function() {
+                    var targetId = this.getAttribute('data-bs-target');
+                    var targetElement = document.querySelector(targetId);
+                    var bsCollapse = new bootstrap.Collapse(targetElement);
+                    bsCollapse.toggle();
+                });
+            });
+        });
+        $(document).ready(function() {
+            $('select').select2({
+                theme: 'bootstrap-5', // aplicando o tema do Bootstrap
+                placeholder: 'Selecione uma opção',
+                allowClear: false,
+                width: '100%' // opcional, se quiser ajustar a largura
+            });
+        });
+    </script>
+</body>
+<footer class="footer py-3 bg-dark text-white">
+    <div class="container">
+        <span class="text-muted">© 2024 - Departamento de Sistemas de Informação</span>
+    </div>
+</footer>
+</html>

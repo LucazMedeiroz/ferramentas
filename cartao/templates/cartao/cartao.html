@@ -1,0 +1,57 @@
+{% extends 'home/base.html' %}
+
+{% block title %}Cartão{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">Gerar Cartão</h1>
+    <form method="POST" class="mb-4">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="numero" class="form-label">Número:</label>
+            <input type="text" id="numero" name="numero" class="form-control" value="{{ numero }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="printer_name" class="form-label" style="display: none;">Impressora:</label>
+            <select id="printer_name" name="printer_name" class="form-select" style="display: none;">
+                {% for printer in printers %}
+                    <option value="{{ printer }}">{{ printer }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" name="generate" class="btn btn-primary">Gerar</button>
+        <button type="submit" name="print" class="btn btn-secondary" style="display: none;">Imprimir</button>
+    </form>
+
+    {% if preview %}
+        <div class="mb-4">
+            <h2>Pré-visualização do Cartão</h2>
+            <img src="data:image/png;base64,{{ preview }}" alt="Pré-visualização do Cartão" class="img-fluid">
+        </div>
+    {% endif %}
+
+    {% if dados %}
+        <div class="mb-4">
+            <h2>Dados do Funcionário</h2>
+            <p><strong>Nome:</strong> {{ dados.0.nome }}</p>
+            <p><strong>Número:</strong> {{ dados.0.Numero }}</p>
+            <p><strong>Descrição:</strong> {{ dados.0.Descricao }}</p>
+            <p><strong>Data de Admissão:</strong> {{ dados.0.dataadmissao }}</p>
+            {% if filename %}
+                <a href="{% url 'download_pdf' filename=filename %}" class="btn btn-success" >Download PDF</a>
+            {% endif %}
+        </div>
+    {% else %}
+        <!--Alerta bootstrap-->
+        <div class="alert alert-warning" role="alert">
+            Nenhum funcionário encontrado com o número informado.
+        </div>
+    {% endif %}
+
+    {% if message %}
+        <div class="mt-4">
+            <h2>{{ message }}</h2>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
