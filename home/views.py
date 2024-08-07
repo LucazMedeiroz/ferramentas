@@ -27,7 +27,7 @@ def login_view(request):
         
         if user is not None:
             login(request, user)
-            return redirect('validadorGeral')
+            return redirect('home')
         else:
             return redirect('login')
     return render(request, 'home/login.html')

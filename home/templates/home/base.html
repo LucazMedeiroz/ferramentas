@@ -110,7 +110,7 @@
 
 
 
-                    <li><a class="dropdown-item" href="{% url 'validadorGeral' %}">Validador Geral</a></li>
+                    <li><a class="dropdown-item" href="{% url 'cartao' %}">Cartão</a></li>
                     <li><a class="dropdown-item" href="{% url 'encomendas' %}">Encomendas</a></li>
                     <li><a class="dropdown-item" href="{% url 'validadorGeral' %}">Validador Geral</a></li>
                     <li><a class="dropdown-item" href="{% url 'validadorView' %}">Validador do Da Entrada</a></li>
@@ -121,8 +121,14 @@
                     {% if user.is_superuser %}
                     <li><a class="dropdown-item" href="{% url 'admin:index' %}">Admin</a></li>
                     {% endif %}
+                    {% if user.username %}
                     <li>                    <a href="{% url 'logout' %}" class="nav-link" >Logout</a>
                     </li>
+                    {% else %}
+                    <li>                    <a href="{% url 'login' %}" class="nav-link" >Login</a>
+                    </li>
+                    {% endif %}
+
                 </ul>
             </div>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
@@ -134,7 +140,14 @@
                 </span>
             </div>
         </div>
-        <img src="{% static 'home/images/logo.png' %}" alt="logo" style="max-width: 400px; max-height: auto; padding: 10px;" >
+        <!--Nome do utilizador-->
+        <span class="navbar-text">
+            {% if user.username %}
+            Bem-vindo, {{ user.username }}
+            {% endif %}
+        </span>
+        
+        <img src="{% static 'home/images/logo.png' %}" alt="logo" style="max-width: 350px; max-height: auto; padding: 10px;" >
     </nav>
       
       {% block content %}
@@ -202,13 +215,19 @@
 
     <!--Importar cdn bootstrap js-->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
 
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/js/bootstrap.min.js"></script>
+
+<!-- Remover jQuery, pois não é necessário para o Bootstrap 5 -->
+<!-- Remover scripts duplicados e corrigir a ordem -->
+
+<!-- Popper.js para o Bootstrap -->
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
+
+<!-- Outros scripts (caso necessários) -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js"></script>
-
 
 
 </body>
