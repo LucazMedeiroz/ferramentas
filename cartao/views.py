@@ -354,7 +354,8 @@ def cartao(request):
                 'printers': printers,
                 'preview': None,
                 'download_link': f'{settings.MEDIA_URL}{output_filename}',
-                'filename': output_filename
+                'filename': output_filename,
+                'page_title': 'Cartão'
             }
 
             if 'print' in request.POST:
@@ -363,11 +364,11 @@ def cartao(request):
             return render(request, 'cartao/cartao.html', context)
         
         else:
-            context = {'printers': printers, 'error_message': 'Nenhum funcionário encontrado com o número fornecido.'}
+            context = {'printers': printers, 'error_message': 'Nenhum funcionário encontrado com o número fornecido.', 'page_tile':'Cartão'}
             return render(request, 'cartao/cartao.html', context)
 
     else:
-        context = {'printers': printers}
+        context = {'printers': printers, 'page_title': 'Cartão'}
         return render(request, 'cartao/cartao.html', context)
 
 
