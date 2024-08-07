@@ -57,6 +57,16 @@ from reportlab.pdfbase.ttfonts import TTFont
 
 # Definição do tamanho do cartão em milímetros
 
+
+from django.contrib.auth.decorators import user_passes_test
+
+def user_in_groups(groups):
+    def check_user(user):
+        return user.is_authenticated and any(group.name in groups for group in user.groups.all())
+    return user_passes_test(check_user)
+
+
+
 def wrap_text(text, max_length):
     """Wrap text into multiple lines with a maximum length."""
     lines = []
@@ -301,6 +311,8 @@ from PIL import Image
 import os
 from django.conf import settings
 
+
+@user_in_groups(['rh', 'it'])
 def cartao(request):
     printers = get_printers()
 
