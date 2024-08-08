@@ -1,0 +1,263 @@
+{% extends 'home/base.html' %}
+{% block title %}Qualidade{% endblock %}
+{% block content %}
+{% load static %}
+    <style>
+
+
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            font-size: 24px;
+            margin: 0;
+
+
+        }
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        .grid-item {
+            background-color: #f8f8f8;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+            background-color: #e1e7fd;
+
+        }
+        .grid-item h3 {
+            margin: 0 0 10px;
+            font-size: 14px;
+            color: #888;
+        }
+        .grid-item p {
+            margin: 0;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .highlight {
+            color: green;
+        }
+        .total {
+            grid-column: span 3;
+        }
+        .stock-avaliable {
+            color: blue;
+            font-weight: bold;
+        }
+        .pricing {
+            margin-top: 20px;
+        }
+        .pricing-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            background-color: #f8f8f8;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+
+
+
+    <div class="container mt-5">
+        <!--Form com barra de pesquisa--->
+        <h1 class="mb-4">Consultar Artigo</h1>
+        <hr>
+        <form action="{% url 'qualidade' %}"method="POST" class="mb-4">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="ref" class="form-label">Número:</label>
+                <input type="text" id="ref" name="ref" class="form-control" value="{{ ref }}" required>
+            </div>
+                <button type="submit" class="btn btn-primary">Pesquisar</button>
+            </div>
+        </form>
+        <br>
+        {% if dados %}
+        <div class="container">
+            <div class="header mb-4">
+                <h1>{{ dados.0.ref }} - {{ dados.0.design }}</h1>
+            </div>
+            <div class="grid-container">
+                <div class="grid-item">
+                    <h3>Tipo Artigo</h3>
+                    <p>{{ dados.0.u_tipoart }}</p>
+                </div>
+                <div class="grid-item">
+                    <h3>Inactivo</h3>
+                    <p class="highlight">{{ dados.0.inactivo }}</p>
+                </div>
+                <div class="grid-item">
+                    <h3>Tamanho</h3>
+                    <p>{{ dados.0.u_tamanho }}</p>
+                </div>
+                <div class="grid-item">
+                    <h3>Nave</h3>
+                    <p>{{ dados.0.u_nave }}</p>
+                </div>
+                <div class="grid-item">
+                    <h3>Unidade</h3>
+                    <p>{{ dados.0.unidade }}</p>
+                </div>
+                <div class="grid-item">
+                    <h3>Stock Total</h3>
+                    <p class="highlight">{{ dados.0.stock }}</p>
+                </div>
+                <div class="grid-item">
+                    <h3>Armazens</h3>
+                    <p><button type="button" onclick="armazens()">Stocks</button></p>
+                </div>
+
+                <div class="grid-item">
+                    <h3>Fornecedor Habitual</h3>
+                    <p>{{ dados.0.fornecedor }}</p>
+                </div>
+                <div class="grid-item">
+                    <h3>Família</h3>
+                    <p>{{ dados.0.familia }}</p>
+                </div>
+                <div class="grid-item">
+                    <h3>Marca</h3>
+                    <p>{{ dados.0.usr1 }}</p>
+                </div>
+                <div class="grid-item">
+                    <h3>Modelo</h3>
+                    <p>{{ dados.0.usr2 }}</p>
+                </div>
+                <div class="grid-item">
+                    <h3>Componente</h3>
+                    <p>{{ dados.0.lang4 }}</p>
+                </div>
+                <div class="grid-item">
+                    <h3>Processo</h3>
+                    <p>{{ dados.0.lang5 }}</p>
+                </div>
+                <div class="grid-item">
+                    <h3>Peso</h3>
+                    <p>{{ dados.0.peso }}</p>
+                </div>
+                <div class="grid-item">
+                    <h3>Controla Qualidade</h3>
+                    <div id="cancpos-view">
+                        <span id="cancpos-value">{{ dados.0.cancpos }}</span>
+                        {% if is_qualidade_admin %}
+
+                            <button id="edit-btn" onclick="toggleEdit()" style="float: right;">
+                                <i class="fas fa-pencil-alt"></i>
+                            </button>
+                        {% endif %}
+
+                    </div>
+                    <div id="cancpos-edit" style="display: none;">
+                        <select id="cancpos-input" class="form-control">
+                            <option value="0" {% if dados.0.cancpos == 0 %}selected{% endif %}>Não</option>
+                            <option value="1" {% if dados.0.cancpos == 1 %}selected{% endif %}>Sim</option>
+                        </select>
+                    
+                        <button id="save-btn" class="btn btn-primary mt-2" onclick="saveCancpos()">Salvar</button>
+                    </div>
+                </div>
+                
+                <!--Observações-->
+                <div class="grid-item total">
+                    <h3>Observações</h3>
+                    <p>{{ dados.0.obs }}</p>
+                </div>
+
+                <div class="armazens" style="display: none;">
+                    {% for dado in dados %}
+                        <div class="grid-item">
+                            <h3>Armazem {{dado.armazem}} </h3>
+                            <p>{{ dado.stock_arm }}</p>
+                        </div>
+                    {% endfor %}
+
+
+                </div>
+
+
+
+
+            </div>
+        </div>
+
+
+
+
+        {% else %}
+            <div class="container mt-5">
+
+
+                <div class="alert alert-warning" role="alert">
+                    Nenhum artigo encontrado.
+                </div>
+            </div>
+        {% endif %}
+
+        {% if message %}
+            <div class="mt-4">
+                <h2>{{ message }}</h2>
+            </div>
+        {% endif %}
+
+
+
+
+    <script>
+        function armazens() {
+            var armazens = document.querySelector('.armazens');
+            if (armazens.style.display === 'none') {
+                armazens.style.display = 'block';
+            } else {
+                armazens.style.display = 'none';
+            }
+        }
+
+        function toggleEdit() {
+            var view = document.getElementById('cancpos-view');
+            var edit = document.getElementById('cancpos-edit');
+            view.style.display = view.style.display === 'none' ? 'block' : 'none';
+            edit.style.display = edit.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function saveCancpos() {
+        var select = document.getElementById('cancpos-input');
+        var newValue = select.value;
+
+        // Enviar o novo valor para o backend para salvar no banco de dados
+        fetch("{% url 'salvar_cancpos' %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+                'ref': '{{ dados.0.ref }}',
+                'cancpos': newValue
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Atualizar o valor mostrado na interface
+                document.getElementById('cancpos-value').innerText = newValue;
+                // Alternar de volta para o modo de visualização
+                toggleEdit();
+            } else {
+                alert("Erro ao salvar as alterações.");
+            }
+        })
+        .catch(error => console.error('Erro:', error));
+    }
+    </script>
+{% endblock %}

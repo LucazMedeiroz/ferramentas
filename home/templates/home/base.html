@@ -8,6 +8,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
     <style>
         .container_per {
             margin-top: 20px;
@@ -86,6 +88,7 @@
             padding: 10px 0;
             /* Background*/
             background-color: #2e3b4e;
+            color: white;
 
         }
 
@@ -113,6 +116,7 @@
                     <li><a class="dropdown-item" href="{% url 'cartao' %}">Cartão</a></li>
                     <li><a class="dropdown-item" href="{% url 'encomendas' %}">Encomendas</a></li>
                     <li><a class="dropdown-item" href="{% url 'producao' %}">Produtividade</a></li>
+                    <li><a class="dropdown-item" href="{% url 'qualidade' %}">Qualidade</a></li>
                     <li><a class="dropdown-item" href="{% url 'validadorGeral' %}">Validador Geral</a></li>
                     <li><a class="dropdown-item" href="{% url 'validadorView' %}">Validador do Da Entrada</a></li>
                     <li><a class="dropdown-item" href="{% url 'validadorparent' %}">Validador do Parent</a></li>
@@ -200,6 +204,11 @@
                     <h3>CARTÃO</h3>
                     <p>Gera um Cartão de Funcionário</p>
                 </div>
+                <!--qualidade-->
+                <div class="col-md-3 feature" onclick="qualidade()">
+                    <i class="fas fa-clipboard-check fa-2x"></i>
+                    <h3>QUALIDADE</h3>
+                    <p>Consulta de Artigos</p>
                     
                 </div>
             </div>
@@ -297,6 +306,14 @@ document.addEventListener('DOMContentLoaded', function() {
         .location
         .assign("{% url 'cartao' %}");
         }
+
+        function qualidade() {
+        //redireciona para {% url 'qualidade' %
+        window
+        .location
+        .assign("{% url 'qualidade' %}");
+        }
+
 
     
 

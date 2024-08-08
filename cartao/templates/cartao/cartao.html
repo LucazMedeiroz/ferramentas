@@ -38,6 +38,13 @@
             <p><strong>Número:</strong> {{ dados.0.Numero }}</p>
             <p><strong>Descrição:</strong> {{ dados.0.Descricao }}</p>
             <p><strong>Data de Admissão:</strong> {{ dados.0.dataadmissao }}</p>
+            {% if dados.0.qrcode %}
+                <p><strong>Qrcode:</strong> Registado</p>
+            {% else %}
+                <p><strong>Qrcode:</strong> Não Registado</p>
+            {% endif %}
+
+
             {% if filename %}
                 <a href="{% url 'download_pdf' filename=filename %}" class="btn btn-success" >Download PDF</a>
             {% endif %}
