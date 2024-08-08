@@ -16,9 +16,19 @@ from django.contrib.auth import login
 # Path: validadores/views.py
 
 
+from django.contrib.auth.decorators import user_passes_test
+
+def user_in_groups(groups):
+    def check_user(user):
+        return user.is_authenticated and any(group.name in groups for group in user.groups.all())
+    return user_passes_test(check_user)
+
+
 
 #verificar se o campo imp e da_entreada são iguais
 
+
+@user_in_groups(['validadores', 'it'])
 @login_required
 def viewValidador(request):
     if request.method == 'POST':
@@ -87,6 +97,7 @@ def viewValidador(request):
 
         
 
+@user_in_groups(['validadores', 'it'])
 @login_required
 def validadorParent(request):
     if request.method == 'POST':
@@ -155,6 +166,7 @@ def validadorParent(request):
     
 from django.views.decorators.csrf import csrf_exempt
 
+@user_in_groups(['validadores', 'it'])
 @login_required
 @csrf_exempt
 def fetch_versions(request):
@@ -177,6 +189,7 @@ def fetch_versions(request):
 
 
 
+@user_in_groups(['validadores', 'it'])
 @login_required
 def validadorGeral(request):
     if request.method == 'POST':
@@ -247,6 +260,7 @@ def validadorGeral(request):
     
 
 
+@user_in_groups(['validadores', 'it'])
 @login_required
 def validarOF(request):
     if request.method == 'POST':
@@ -297,6 +311,7 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from .models import Mensagem
 
+@user_in_groups(['validadores', 'it'])
 def historico(request):
     mensagens_list = Mensagem.objects.all().order_by('-id')
     paginator = Paginator(mensagens_list, 10)  # 10 mensagens por página

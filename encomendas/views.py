@@ -17,6 +17,16 @@ from django.contrib.auth.decorators import login_required
 
 
 
+from django.contrib.auth.decorators import user_passes_test
+
+def user_in_groups(groups):
+    def check_user(user):
+        return user.is_authenticated and any(group.name in groups for group in user.groups.all())
+    return user_passes_test(check_user)
+
+
+
+@user_in_groups(['encomendas', 'it'])
 @login_required
 def encomendasAbertas(request):
 

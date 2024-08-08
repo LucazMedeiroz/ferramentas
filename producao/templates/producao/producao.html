@@ -1,0 +1,501 @@
+<!--Importar o base.html-->
+{% extends 'home/base.html' %}
+{% load static %}
+{% block title %}Produção{% endblock %}
+{% block content %}
+
+    <style>
+        body {
+            background-image: url("{% static 'producao2.png' %}");
+            background-size: cover;
+            background-position: center;
+            /* Transparência diretamente na imagem de fundo */
+            background-color: rgba(255, 255, 255, 0.3); /* 30% de opacidade */
+        }
+    </style>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <div class="container mt-5">
+
+        <h1 class="mt-4">Produção</h1>
+        <hr>
+        <form method="get">
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-sm-3">
+                        <label for="seccao">Seção:</label>
+                        <select id="seccao" name="seccao" class="form-control" required>
+                            <option value="">Selecione uma seção</option>
+                            {% for secao in seccoes %}
+                                <option value="{{ secao }}">{{ secao }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col col-sm-3">
+                        <label for="ct_design">Centro de Trabalho:</label>
+                        <select id="ct_design" name="ct_design" class="form-control" disabled required>
+                            <option value="">Selecione um centro de trabalho</option>
+                        </select>
+                    </div>
+                    <div class="col col-sm-3">
+                        <label for="marca">Marca:</label>
+                        <select id="marca" name="marca" class="form-control" disabled required>
+                            <option value="">Selecione uma marca</option>
+                        </select>
+                    </div>
+                    <div class="col col-sm-3">
+                        <label for="modelo">Modelo:</label>
+                        <select id="modelo" name="modelo" class="form-control" disabled required>
+                            <option value="">Selecione um modelo</option>
+                        </select>
+                    </div>
+                    <div class="col col-sm-3">
+                        <label for="componente">Componente:</label>
+                        <select id="componente" name="componente" class="form-control" disabled required>
+                            <option value="">Selecione um componente</option>
+                        </select>
+                    </div>
+                    <div class="col col-sm-3">
+
+                        <label for="data_inicio">Data de início:</label>
+                        
+                        <!--Por default a data de 7 dias-->
+                        <input type="date" id="data_inicio" class="form-control" name="start_date" value="{{ start_date_default }}">
+                    </div>
+                    <div class="col col-sm-3">
+                        <label for="data:fim">Data de fim:</label>
+                        <input type="date" id="data_fim" class="form-control" name="end_date" value="{{ end_date_default}}">
+                    </div>          
+                    <div class="col col-sm-3 mt-4">
+                        <button type="submit" class="btn btn-primary">Filtrar</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+        
+        
+        
+        {% if error_message %}
+        <p style="color: red;">{{ error_message }}</p>
+        {% else %}
+        
+        <br>
+        <button id="copy-table" class="btn btn-outline-primary mr-2" >
+            <i class="fas fa-copy"></i> 
+        </button>
+        <button id="download-excel" class="btn btn-outline-success mr-2" onclick="excel()">
+            <i class="fas fa-file-excel"></i> Download Excel
+        </button>
+
+
+        
+        <!--
+        <h2>Produção da semana passada</h2>
+        <table border="1">
+            <tr>
+                <th>Produção</th>
+                <th>Referência</th>
+                <th>Design</th>
+                <th>Marca</th>
+                <th>Modelo</th>
+                <th>Tipo</th>
+                <th>Processo</th>
+                <th>Nave</th>
+                <th>Tamanho</th>
+                <th>CT Design</th>
+                <th>Seção</th>
+            </tr>
+            {% for row in rows_last_week %}
+            <tr>
+                <td>{{ row.producao }}</td>
+                <td>{{ row.ref }}</td>
+                <td>{{ row.design }}</td>
+                <td>{{ row.usr1 }}</td>
+                <td>{{ row.usr2 }}</td>
+                <td>{{ row.lang4 }}</td>
+                <td>{{ row.lang5 }}</td>
+                <td>{{ row.u_nave }}</td>
+                <td>{{ row.u_tamanho }}</td>
+                <td>{{ row.ct_design }}</td>
+                <td>{{ row.name }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+
+        
+        
+        {% endif %}
+
+    -->
+    <br><br>
+
+    <div class="row">
+        <div class="col">
+            <h2>Produção de - {{start_date}} até - {{end_date}}</h2>
+
+        </div>
+        <div class="col-auto ml-auto">
+            <button onclick="detalhes()" class="btn btn-primary">Detalhes</button>
+        </div>
+    </div>
+
+    
+    <hr><br>
+
+    <div class="tabelas" style="background-color: rgba(255, 255, 255, 0.568);padding: 20px;">
+
+
+        <table border="3"class="table table-striped mb-5 ">
+            <thead>
+                <tr>
+                    <th style="text-align: center;" border="3" colspan="5"> Informações</th>
+
+                <tr>
+
+                    <th>Secção</th>
+                    <th>Centro Trabalho</th>
+                    <th>Marca</th>
+                    <th>Modelo</th>
+                    <th>Componente</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{ seccao }}</td>
+                    <td>{{ ct_design }}</td>
+                    <td>{{ marca }}</td>
+                    <td>{{ modelo }}</td>
+                    <td>{{ componente }}</td>
+                </tr>
+            </tbody>
+
+        </table>
+
+
+        <table border="3" class="table table-striped mb-5" id="producao">
+            <tr>
+                <th>Dia</th>
+                {% for data, info in producao_por_dia.items %}
+                <th>{{ data }}</th>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td>Dia Semana</td>
+                {% for data, info in producao_por_dia.items %}
+                <td>{{ info.diasemana }}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td>Total de Produção</td>
+                {% for data, info in producao_por_dia.items %}
+                <td>{{ info.producao }}</td>
+                {% endfor %}
+            </tr>
+
+        </table>
+
+
+
+
+        
+        <table border="3" class="table table-striped" style="display: none;" id="detalhes">
+            <tr>
+                <th colspan="12" style="text-align: center;">Detalhes</th>
+            </tr>
+            
+            <tr>
+                <th>Produção</th>
+                <th>Referência</th>
+                <th>Design</th>
+                <th>Marca</th>
+                <th>Modelo</th>
+                <th>Tipo</th>
+                <th>Processo</th>
+                <th>Nave</th>
+                <th>Tamanho</th>
+                <th>CT Design</th>
+                <th>Secção</th>
+                <th>Data</th>
+
+            </tr>
+            
+            {% for row in rows_this_week %}
+            <tr>
+                <td>{{ row.producao }}</td>
+                <td>{{ row.ref }}</td>
+                <td>{{ row.design }}</td>
+                <td>{{ row.usr1 }}</td>
+                <td>{{ row.usr2 }}</td>
+                <td>{{ row.lang4 }}</td>
+                <td>{{ row.lang5 }}</td>
+                <td>{{ row.u_nave }}</td>
+                <td>{{ row.u_tamanho }}</td>
+                <td>{{ row.ct_design }}</td>
+                <td>{{ row.name }}</td>
+                <td>{{ row.final }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+
+
+
+<script>
+
+    function detalhes() {
+        var table = document.getElementById("detalhes");
+        if (table.style.display === "none") {
+            table.style.display = "block";
+        } else {
+            table.style.display = "none";
+        }
+    }
+
+
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const seccaoSelect = document.getElementById('seccao');
+        const marcaSelect = document.getElementById('marca');
+        const modeloSelect = document.getElementById('modelo');
+        const componenteSelect = document.getElementById('componente');
+        const ctDesignSelect = document.getElementById('ct_design');
+        
+        seccaoSelect.addEventListener('change', function() {
+            const seccao = seccaoSelect.value;
+            marcaSelect.innerHTML = '<option value="">Selecione uma marca</option>';
+            modeloSelect.innerHTML = '<option value="">Selecione um modelo</option>';
+            componenteSelect.innerHTML = '<option value="">Selecione um componente</option>';
+            ctDesignSelect.innerHTML = '<option value="">Selecione um centro de trabalho</option>';
+            marcaSelect.disabled = true;
+            modeloSelect.disabled = true;
+            componenteSelect.disabled = true;
+            ctDesignSelect.disabled = true;
+        
+            if (seccao) {
+                fetch(`/producao/ajax/get_marcas/?seccao=${seccao}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.marcas) {
+                            marcaSelect.disabled = false;
+                            data.marcas.forEach(marca => {
+                                const option = document.createElement('option');
+                                option.value = marca.trim();
+                                option.textContent = marca.trim();
+                                marcaSelect.appendChild(option);
+                            });
+                        }
+                    })
+                    .catch(error => console.error('Erro ao buscar marcas:', error));
+
+                fetch(`/producao/ajax/get_ct_designs/?seccao=${seccao}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.ct_designs) {
+                            ctDesignSelect.disabled = false;
+                            data.ct_designs.forEach(ct_design => {
+                                const option = document.createElement('option');
+                                option.value = ct_design.trim();
+                                option.textContent = ct_design.trim();
+                                ctDesignSelect.appendChild(option);
+                            });
+                        }
+                    })
+                    .catch(error => console.error('Erro ao buscar centros de trabalho:', error));
+            } else {
+                marcaSelect.disabled = true;
+                modeloSelect.disabled = true;
+                componenteSelect.disabled = true;
+                ctDesignSelect.disabled = true;
+            }
+        });
+        
+        marcaSelect.addEventListener('change', function() {
+            const marca = marcaSelect.value;
+            var marcaCodificada = encodeURIComponent(marca);
+
+            modeloSelect.innerHTML = '<option value="">Selecione um modelo</option>';
+            componenteSelect.innerHTML = '<option value="">Selecione um componente</option>';
+            componenteSelect.disabled = true;
+        
+            if (marca) {
+                fetch(`/producao/ajax/get_modelos/?marca=${marcaCodificada}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.modelos) {
+                            modeloSelect.disabled = false;
+                            data.modelos.forEach(modelo => {
+                                const option = document.createElement('option');
+                                option.value = modelo.trim();
+                                option.textContent = modelo.trim();
+                                modeloSelect.appendChild(option);
+                            });
+                        }
+                    })
+                    .catch(error => console.error('Erro ao buscar modelos:', error));
+            } else {
+                modeloSelect.disabled = true;
+                componenteSelect.disabled = true;
+            }
+        });
+        
+        modeloSelect.addEventListener('change', function() {
+            const modelo = modeloSelect.value;
+            componenteSelect.innerHTML = '<option value="">Selecione um componente</option>';
+        
+            if (modelo) {
+                fetch(`/producao/ajax/get_componentes/?modelo=${modelo}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.componentes) {
+                            componenteSelect.disabled = false;
+                            data.componentes.forEach(componente => {
+                                const option = document.createElement('option');
+                                option.value = componente.trim();
+                                option.textContent = componente.trim();
+                                componenteSelect.appendChild(option);
+                            });
+                        }
+                    })
+                    .catch(error => console.error('Erro ao buscar componentes:', error));
+            } else {
+                componenteSelect.disabled = true;
+            }
+        });
+    });
+
+        // Função para agrupar e calcular totais
+        function agruparPorDia() {
+        var table = document.getElementById("producao_por_dia");
+        var rows = table.getElementsByTagName("tr");
+        var totals = {};
+        
+        // Comece do índice 1 para ignorar o cabeçalho da tabela
+        for (var i = 1; i < rows.length; i++) {
+            var date = rows[i].getElementsByTagName("td")[0].textContent;
+            var production = parseInt(rows[i].getElementsByTagName("td")[1].textContent);
+            
+            // Verifique se o total para esta data já foi inicializado
+            if (!totals[date]) {
+                totals[date] = 0;
+            }
+            
+            // Adicione a produção à total para esta data
+            totals[date] += production;
+        }
+        
+        // Limpe a tabela antes de inserir os novos totais
+        table.innerHTML = "<tr><th>Data</th><th>Total de Produção</th></tr>";
+        
+        // Insira os totais na tabela
+        for (var date in totals) {
+            var row = table.insertRow(-1);
+            var cell1 = row.insertCell(0);
+            var cell2 = row.insertCell(1);
+            cell1.textContent = date;
+            cell2.textContent = totals[date];
+        }
+    }
+    
+    // Chame a função para agrupar e calcular totais ao carregar a página
+    window.onload = agruparPorDia;
+
+
+    // Inicializa o clipboard.js no botão
+    document.getElementById('copy-table').addEventListener('click', function() {
+            var table = document.getElementById('producao');
+            var range, selection;
+
+            if (document.createRange) {
+                range = document.createRange();
+                range.selectNode(table);
+                selection = window.getSelection();
+                selection.removeAllRanges();
+                selection.addRange(range);
+                document.execCommand('copy');
+                alert('Tabela copiada!');
+            } else {
+                range = document.body.createTextRange();
+                range.moveToElementText(table);
+                range.select();
+                document.execCommand('copy');
+                alert('Tabela copiada!');
+            }
+        });
+
+        document.getElementById('toggle-collapse').addEventListener('click', function() {
+            var collapses = document.querySelectorAll('#collapse');
+            var isAnyOpen = Array.from(collapses).some(function(collapse) {
+                return collapse.classList.contains('show');
+            });
+
+            collapses.forEach(function(collapse) {
+                if (isAnyOpen) {
+                    bootstrap.Collapse.getInstance(collapse)?.hide();
+                } else {
+                    bootstrap.Collapse.getOrCreateInstance(collapse).show();
+                }
+            });
+});
+
+function excel() {
+    var wb = XLSX.utils.book_new();
+
+    // Função para adicionar uma tabela ao arquivo Excel
+    function appendTableToSheet(sheet, table, startRow) {
+        Array.from(table.rows).forEach((row, rowIndex) => {
+            Array.from(row.cells).forEach((cell, colIndex) => {
+                var cellAddress = { c: colIndex, r: startRow + rowIndex };
+                var cellRef = XLSX.utils.encode_cell(cellAddress);
+                sheet[cellRef] = { v: cell.textContent || "" };
+            });
+        });
+
+        // Atualiza o range da worksheet
+        var range = XLSX.utils.decode_range(sheet['!ref'] || "A1:A1");
+        range.e.r = Math.max(range.e.r, startRow + table.rows.length - 1);
+        range.e.c = Math.max(range.e.c, table.rows[0].cells.length - 1);
+        sheet['!ref'] = XLSX.utils.encode_range(range);
+    }
+
+    // Seleciona as três tabelas
+    var infoTable = document.querySelector('.tabelas table:nth-child(1)');
+    var producaoTable = document.getElementById('producao');
+    var detalhesTable = document.getElementById('detalhes');
+
+    // Cria uma planilha vazia
+    var ws = XLSX.utils.aoa_to_sheet([[]]);
+
+    // Adiciona as tabelas à planilha uma após a outra
+    var currentRow = 0;
+    if (infoTable) {
+        appendTableToSheet(ws, infoTable, currentRow);
+        currentRow += infoTable.rows.length + 2; // Espaçamento entre tabelas
+    }
+
+    if (producaoTable) {
+        appendTableToSheet(ws, producaoTable, currentRow);
+        currentRow += producaoTable.rows.length + 2; // Espaçamento entre tabelas
+    }
+
+    if (detalhesTable && detalhesTable.style.display !== 'none') {
+        appendTableToSheet(ws, detalhesTable, currentRow);
+    }
+
+    // Adiciona a planilha ao workbook
+    XLSX.utils.book_append_sheet(wb, ws, 'Produção');
+
+    // Gera e baixa o arquivo Excel
+    XLSX.writeFile(wb, 'producoes.xlsx');
+}
+
+
+
+</script>
+
+        
+
+{% endblock %}

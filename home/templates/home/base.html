@@ -112,6 +112,7 @@
 
                     <li><a class="dropdown-item" href="{% url 'cartao' %}">Cartão</a></li>
                     <li><a class="dropdown-item" href="{% url 'encomendas' %}">Encomendas</a></li>
+                    <li><a class="dropdown-item" href="{% url 'producao' %}">Produtividade</a></li>
                     <li><a class="dropdown-item" href="{% url 'validadorGeral' %}">Validador Geral</a></li>
                     <li><a class="dropdown-item" href="{% url 'validadorView' %}">Validador do Da Entrada</a></li>
                     <li><a class="dropdown-item" href="{% url 'validadorparent' %}">Validador do Parent</a></li>
@@ -121,7 +122,7 @@
                     {% if user.is_superuser %}
                     <li><a class="dropdown-item" href="{% url 'admin:index' %}">Admin</a></li>
                     {% endif %}
-                    {% if user.username %}
+                    {% if user.username|upper %}
                     <li>                    <a href="{% url 'logout' %}" class="nav-link" >Logout</a>
                     </li>
                     {% else %}
@@ -142,9 +143,16 @@
         </div>
         <!--Nome do utilizador-->
         <span class="navbar-text">
+                    <!--username com letra maiuscula-->
+
+
             {% if user.username %}
             Bem-vindo, {{ user.username }}
             {% endif %}
+
+
+
+
         </span>
         
         <img src="{% static 'home/images/logo.png' %}" alt="logo" style="max-width: 350px; max-height: auto; padding: 10px;" >
@@ -182,7 +190,7 @@
                     <h3>ENCOMENDAS</h3>
                     <p>Verifica o status de cada encomenda</p>
                 </div>
-                <div class="col-md-3 feature" onclick="produtividade()">
+                <div class="col-md-3 feature" onclick="producao()">
                     <i class="fas fa-chart-line fa-2x"></i>
                     <h3>PRODUTIVIDADE</h3>
                     <p>Verifica a produção de cada posto de trabalho</p>
@@ -271,12 +279,28 @@ document.addEventListener('DOMContentLoaded', function() {
       .location
       .assign("{% url 'encomendas' %}");
       }
+
+      function producao() {
+      //redireciona para {% url 'validadorGeral' %
+      window
+      .location
+      .assign("{% url 'producao' %}");
+      }
+
+
+
+
+
         function cartao() {
         //redireciona para {% url 'cartao' %
         window
         .location
         .assign("{% url 'cartao' %}");
         }
+
+    
+
+    
         
       
 
