@@ -209,8 +209,13 @@
                     <i class="fas fa-clipboard-check fa-2x"></i>
                     <h3>QUALIDADE</h3>
                     <p>Consulta de Artigos</p>
-                    
                 </div>
+                <div class="col-md-3 feature" onclick="parque()">
+                    <i class="fas fa-laptop fa-2x"></i>
+                    <h3>Parque Informático</h3>
+                    <p>Gestão de Equipamentos da empresa</p>
+                </div>
+                
             </div>
         </div>
     </div>
@@ -314,6 +319,14 @@ document.addEventListener('DOMContentLoaded', function() {
         .location
         .assign("{% url 'qualidade' %}");
         }
+
+        function parque() {
+        //redireciona para {% url 'qualidade' %
+        window
+        .location
+        .assign("http://192.168.120.102");
+        }
+
 
 
     

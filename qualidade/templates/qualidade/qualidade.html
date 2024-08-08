@@ -76,7 +76,7 @@
         <form action="{% url 'qualidade' %}"method="POST" class="mb-4">
             {% csrf_token %}
             <div class="mb-3">
-                <label for="ref" class="form-label">Número:</label>
+                <label for="ref" class="form-label">Referência:</label>
                 <input type="text" id="ref" name="ref" class="form-control" value="{{ ref }}" required>
             </div>
                 <button type="submit" class="btn btn-primary">Pesquisar</button>
