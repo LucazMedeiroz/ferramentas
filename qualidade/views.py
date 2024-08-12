@@ -73,10 +73,44 @@ def salvar_cancpos(request):
 
 
 
-        
-        
+from django.shortcuts import get_object_or_404
+from django.http import HttpResponse
+from zebra import Zebra
+import qrcode
+from io import BytesIO
+import socket
+from django.shortcuts import get_object_or_404
+from django.http import HttpResponse
+from zebra import Zebra
+import qrcode
+from io import BytesIO
+import socket
+from .models import  Configuracao  # Importar o modelo de Ticket e Configuração
 
 
 
+from django.shortcuts import get_object_or_404
+from django.http import HttpResponse
+from .models import Configuracao
+from .utils import obter_dados_ticket, gerar_zpl
+import socket
 
-
+def imprimir_etiqueta_view(request, ticket_id):
+    resultados = obter_dados_ticket(ticket_id)
+    zpl = gerar_zpl(ticket_id, resultados)
+    
+    configuracao = Configuracao.objects.first()
+    if not configuracao:
+        return HttpResponse("Configuração não encontrada", status=500)
+    
+    ip_impressora = configuracao.ip_impressora
+    
+    # Conecta à impressora e envia o ZPL
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.connect((ip_impressora, 9100))  # Substitua pela porta da sua impressora, se diferente
+        sock.sendall(zpl.encode("utf-8"))
+        sock.close()
+        return HttpResponse("Etiqueta impressa com sucesso")
+    except Exception as e:
+        return HttpResponse(f"Erro ao imprimir: {e}", status=500)

@@ -67,18 +67,83 @@ def atualizar_cancpos(ref, cancpos):
 
 
 
+import MySQLdb
 
 
-
-
-
-
-
-
-
-
-
-
+def obter_dados_ticket(ticket_id):
+    # Conectar ao banco de dados
+    db = MySQLdb.connect(
+        host="192.168.120.106",  
+        user="root",        
+        passwd="tri123",      
+        db="osticket_db",     
+        charset="utf8"
+    )
     
+    cursor = db.cursor()
+    
+    # Query para buscar as informações do ticket
+    query = """
+
+SELECT ot.`number` , oht.topic AS help_topic, off.label, ofev.value 
+FROM ost_help_topic oht 
+INNER JOIN ost_help_topic_form ohtf ON ohtf.topic_id = oht.topic_id 
+INNER JOIN ost_ticket ot ON ot.topic_id = oht.topic_id 
+INNER JOIN ost_form of ON of.id = ohtf.form_id 
+INNER JOIN ost_form_field off ON off.form_id = ohtf.form_id 
+INNER JOIN ost_form_entry_values ofev ON ofev.field_id = off.id 
+WHERE ohtf.sort = 2 
+ AND ot.ticket_id = %s
+    """
+    
+    cursor.execute(query, (ticket_id,))
+    
+    results = cursor.fetchall()
+    
+    cursor.close()
+    db.close()
+    
+    return results
 
 
+def gerar_zpl(ticket_id, resultados):
+    # Código ZPL fixo com QR Code e texto ao lado
+    zpl_fixo = """
+    ^XA
+    ^CI28          // Define a codificação UTF-8
+    ^PW800
+    ^LL560
+    ^CF0,20
+
+    // Define o QR Code com o link para o ticket na lateral direita
+    ^FO400,20^BQN,2,10^FR^FDMA,http://192.168.120.106/scp/tickets.php?id={ticket_id}^FS
+
+    // Define o texto ao lado do QR Code
+    ^FO20,20^A0N,30,30^FDTicket #{ticket_number}^FS
+
+    // Adiciona o Help Topic
+    ^FO20,60^A0N,20,20^FDHelp Topic: {help_topic}^FS
+    """
+    
+    # Adiciona labels e valores adicionais
+    etiquetas = ""
+    y_position = 100  # Ajustar a posição vertical conforme necessário
+    
+    help_topic = ""  # Inicializa a variável help_topic
+    
+    for row in resultados:
+        if len(row) != 4:
+            raise ValueError("Resultado da consulta não está no formato esperado.")
+        
+        _, help_topic_db, label, value = row  # Desempacota os dados
+        help_topic = help_topic_db  # Atualiza help_topic para o último valor encontrado
+        
+        # Substitua caracteres especiais se necessário
+        label = label.replace('ç', 'c').replace('ã', 'a')  # Ajuste conforme necessário
+        value = value.replace('ç', 'c').replace('ã', 'a')  # Ajuste conforme necessário
+        
+        etiquetas += "^FO20,{0}\n^A0N,20,20\n^FD{1}: {2}^FS\n".format(y_position, label, value)
+        y_position += 40  # Ajusta a posição vertical para a próxima linha
+    
+    zpl_fixo += etiquetas + "^XZ"
+    return zpl_fixo.format(ticket_id=ticket_id, ticket_number=ticket_id, help_topic=help_topic)

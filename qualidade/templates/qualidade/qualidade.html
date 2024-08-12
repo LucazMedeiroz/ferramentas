@@ -111,7 +111,7 @@
                 </div>
                 <div class="grid-item">
                     <h3>Stock Total</h3>
-                    <p class="highlight">{{ dados.0.stock }}</p>
+                    <p class="highlight"> {{ dados.0.stock|floatformat:0 }} </p>
                 </div>
                 <div class="grid-item">
                     <h3>Armazens</h3>
@@ -178,9 +178,9 @@
                     {% for dado in dados %}
                         <div class="grid-item">
                             <h3>Armazem {{dado.armazem}} </h3>
-                            <p>{{ dado.stock_arm }}</p>
-                        </div>
+                            <p>{{ dado.stock_arm|floatformat:0 }} </p>
                         <br>
+                        </div>
                     {% endfor %}
 
 
