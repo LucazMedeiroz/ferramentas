@@ -144,8 +144,20 @@
                 </div>
                 <div class="grid-item">
                     <h3>Peso</h3>
-                    <p>{{ dados.0.peso }}</p>
+                    <div id="peso-view">
+                        <span id="peso-value">{{ dados.0.peso }}</span>
+                        {% if is_qualidade_admin %}
+                            <button id="edit-peso-btn" onclick="toggleEditPeso()" style="float: right;">
+                                <i class="fas fa-pencil-alt"></i>
+                            </button>
+                        {% endif %}
+                    </div>
+                    <div id="peso-edit" style="display: none;">
+                        <input type="number" id="peso-input" class="form-control" value="{{ dados.0.peso }}" step="0.01">
+                        <button id="save-peso-btn" class="btn btn-primary mt-2" onclick="savePeso()">Salvar</button>
+                    </div>
                 </div>
+                
                 <div class="grid-item">
                     <h3>Controla Qualidade</h3>
                     <div id="cancpos-view">
@@ -260,5 +272,52 @@
         })
         .catch(error => console.error('Erro:', error));
     }
+
+    function toggleEditPeso() {
+    var view = document.getElementById('peso-view');
+    var edit = document.getElementById('peso-edit');
+    view.style.display = view.style.display === 'none' ? 'block' : 'none';
+    edit.style.display = edit.style.display === 'none' ? 'block' : 'none';
+}
+
+function savePeso() {
+    var pesoInput = document.getElementById('peso-input');
+    var newPeso = pesoInput.value;
+
+    // Enviar o novo valor para o backend para salvar no banco de dados
+    fetch("{% url 'salvar_peso' %}", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({
+            'ref': '{{ dados.0.ref }}',
+            'peso': newPeso
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Atualizar o valor mostrado na interface
+            document.getElementById('peso-value').innerText = newPeso;
+            // Alternar de volta para o modo de visualização
+            toggleEditPeso();
+        } else {
+            alert("Erro ao salvar as alterações.");
+        }
+    })
+    .catch(error => console.error('Erro:', error));
+}
+
+
+
+
+
+
+
+
     </script>
+
+    
 {% endblock %}

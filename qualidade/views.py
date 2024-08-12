@@ -2,7 +2,7 @@ import json
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from .utils import dados_qualidade
-from .utils import atualizar_cancpos
+from .utils import atualizar_cancpos, atualizar_peso
 from django.http import JsonResponse
 
 
@@ -69,6 +69,24 @@ def salvar_cancpos(request):
         else:
             return JsonResponse({'success': False})
     return JsonResponse({'success': False})
+
+def salvar_peso(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        ref = data.get('ref')
+        peso = data.get('peso')
+
+        # Chama a função para atualizar o valor no banco de dados
+        sucesso = atualizar_peso(ref, peso)
+
+        if sucesso:
+            return JsonResponse({'success': True})
+        else:
+            return JsonResponse({'success': False})
+    return JsonResponse({'success': False})
+
+
+
 
 
 

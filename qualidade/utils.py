@@ -64,6 +64,20 @@ def atualizar_cancpos(ref, cancpos):
     except Exception as e:
         print(f"Erro ao atualizar cancpos: {e}")
         return False
+    
+def atualizar_peso(ref, peso):
+    try:
+        conn = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};SERVER=192.168.120.9;DATABASE=PHCTRI;UID=estagio;PWD=3stAg10..')
+        cursor = conn.cursor()
+        query = f"UPDATE st SET peso = ? WHERE ref = ?"
+        cursor.execute(query, (peso, ref))
+        conn.commit()
+        return True
+    except Exception as e:
+        print(f"Erro ao atualizar peso: {e}")
+        return False
+    
+
 
 
 
@@ -129,8 +143,17 @@ def gerar_zpl(ticket_id, resultados):
     etiquetas = ""
     y_position = 100  # Ajustar a posição vertical conforme necessário
     
+
+    ticket_number = ""  # Inicializa a variável ticket_number
     help_topic = ""  # Inicializa a variável help_topic
     
+    for row in resultados:
+        if len(row) != 4:
+            raise ValueError("Resultado da consulta não está no formato esperado.")
+        
+        ticket_number, help_topic_db, label, value = row  # Desempacota os dados
+        help_topic = help_topic_db  # Atualiza help_topic para o último valor encontrado
+            
     for row in resultados:
         if len(row) != 4:
             raise ValueError("Resultado da consulta não está no formato esperado.")
@@ -146,4 +169,4 @@ def gerar_zpl(ticket_id, resultados):
         y_position += 40  # Ajusta a posição vertical para a próxima linha
     
     zpl_fixo += etiquetas + "^XZ"
-    return zpl_fixo.format(ticket_id=ticket_id, ticket_number=ticket_id, help_topic=help_topic)
+    return zpl_fixo.format(ticket_id=ticket_id, ticket_number=ticket_number, help_topic=help_topic)

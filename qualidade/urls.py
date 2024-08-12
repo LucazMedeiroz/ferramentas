@@ -17,6 +17,8 @@ urlpatterns = [
     path('', views.qualidade, name='qualidade'),
     path('qualidade/', views.qualidade, name='qualidade'),
     path('salvar_cancpos/', views.salvar_cancpos, name='salvar_cancpos'),
+    path('salvar_peso/', views.salvar_peso, name='salvar_peso'),
+
     path('imprimir_etiqueta/<int:ticket_id>/', views.imprimir_etiqueta_view, name='imprimir_etiqueta'),
 
 
