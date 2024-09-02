@@ -1,0 +1,30 @@
+^XA
+^FO50,50
+^A0N,50,50
+^FDTicket #960806^FS
+
+^FO50,120
+^A0N,40,40
+^FDHelp Topic: Quadro para ensaiar^FS
+
+^FO50,200
+^A0N,30,30
+^FDModelo: elite^FS
+
+^FO50,250
+^A0N,30,30
+^FDTamanho: 45^FS
+
+^FO50,300
+^A0N,30,30
+^FDOF: 4433223^FS
+
+^FO50,350
+^A0N,20,20
+^FDDescrição: <p>eeeedrfedefdew</p>^FS
+}^FS
+
+^FO400,200
+^BQN,4,10
+^FD   http://192.168.120.106/scp/tickets.php?id=4^FS
+^XZ

@@ -437,3 +437,212 @@ def salvar_detalhes_excel(data):
     writer.save()
 
     
+
+
+#nave1
+import pyodbc
+
+def fetch_id_versions():
+    query = """
+    SELECT id FROM u_prod_gama_versao_alb WHERE type IN (1,5,7) AND active = 1
+    """
+    conn_str = 'DRIVER={ODBC Driver 17 for SQL Server};SERVER=192.168.120.9;DATABASE=PHCTRI;UID=estagio;PWD=3stAg10..'
+    conn = pyodbc.connect(conn_str)
+    cursor = conn.cursor()
+    cursor.execute(query)
+    rows = cursor.fetchall()
+    return [row[0] for row in rows]
+
+def fetch_marca_modelo_tamanho(main_ref):
+    query = f"""
+    SELECT st.usr1, st.usr2, st.u_tamanho FROM u_prod_gama_versao_alb a
+    JOIN st ON a.main_ref = st.ref
+    WHERE a.main_ref = '{main_ref}'
+    """
+    conn_str = 'DRIVER={ODBC Driver 17 for SQL Server};SERVER=192.168.120.9;DATABASE=PHCTRI;UID=estagio;PWD=3stAg10..'
+    conn = pyodbc.connect(conn_str)
+    cursor = conn.cursor()
+    cursor.execute(query)
+    row = cursor.fetchone()
+    print(row)  # Adicione isso para depuração
+    return row[0], row[1], row[2]  # marca, modelo, tamanho
+
+
+def fetch_nave1_data(id_version):
+    query = f"""
+    SELECT DISTINCT
+        TRIM(lang4) AS lang4,
+        b.u_nave,
+        c.stock,
+        d.obrano_fo,
+        d.ofparent,
+        d.status,
+        d.qtt_real,
+        d.qtt_produzida,
+        TRIM(e.ref) AS ref,
+        e.obrano_fo,
+        e.status,
+        e.sequencial
+    FROM u_prod_gama_operations_alb a
+    INNER JOIN st b ON a.ref = b.ref
+    INNER JOIN sa c ON b.ref = c.ref
+    INNER JOIN u_fo_alb d ON a.ref = d.ref
+    INNER JOIN u_fo_alb e ON d.ofparent = e.id
+    WHERE id_version = '{id_version}'
+      AND b.u_nave = 1
+      AND c.armazem = 8
+      AND b.lang5 <> ''
+      AND e.status = 2
+      AND d.qtt_produzida > 0
+    GROUP BY e.ref, lang4, b.u_nave, c.stock, d.obrano_fo, d.ofparent,
+             d.status, d.qtt_real, d.qtt_produzida, e.ref, e.obrano_fo,
+             e.status, e.sequencial
+    """
+    conn_str = 'DRIVER={ODBC Driver 17 for SQL Server};SERVER=192.168.120.9;DATABASE=PHCTRI;UID=estagio;PWD=3stAg10..'
+    conn = pyodbc.connect(conn_str)
+    cursor = conn.cursor()
+    cursor.execute(query)
+    rows = cursor.fetchall()
+    
+    # Remove spaces in each field
+    cleaned_rows = [
+        (
+            row[0].strip() if row[0] else None,  # lang4
+            row[1],  # u_nave
+            row[2],  # stock
+            row[3],  # obrano_fo
+            row[4],  # ofparent
+            row[5],  # status
+            row[6],  # qtt_real
+            row[7],  # qtt_produzida
+            row[8].strip() if row[8] else None,  # ref
+            row[9],  # obrano_fo
+            row[10],  # status
+            row[11],  # sequencial
+        )
+        for row in rows
+    ]
+    return cleaned_rows
+
+
+def generate_html_table(data):
+    headers = ['ref', 'marca', 'modelo', 'tamanho', 'cs', 'ss', 'drp', 'mb', 'ht', 'dt', 'tt', 'st']
+    lang4_keys = ['CS', 'SS', 'DT', 'MB', 'HT', 'TT', 'ST']
+
+    html = '<table border="1">'
+    html += '<thead><tr>'
+    for header in headers:
+        html += f'<th>{header}</th>'
+    html += '</tr></thead><tbody>'
+
+    for ref, details in data.items():
+        marca, modelo, tamanho = fetch_marca_modelo_tamanho(ref)
+        
+        html += f'<tr><td>{ref}</td><td>{marca}</td><td>{modelo}</td><td>{tamanho}</td>'
+        for lang4 in lang4_keys:
+            value = details.get(lang4, 0)
+            html += f'<td>{value}</td>'
+        html += '</tr>'
+    
+    html += '</tbody></table>'
+    return html
+
+def main():
+    id_versions = fetch_id_versions()
+    all_data = []
+    
+    for id_version in id_versions:
+        rows = fetch_nave1_data(id_version)
+        for row in rows:
+            row_dict = {
+                'ref': row[8],
+                'lang4': row[0],
+                'stock': row[2]
+            }
+            all_data.append(row_dict)
+    
+    # Organize data by 'ref' and then by 'lang4'
+    organized_data = {}
+    for entry in all_data:
+        ref = entry['ref']
+        lang4 = entry['lang4']
+        stock = entry['stock']
+        
+        if ref not in organized_data:
+            organized_data[ref] = {}
+        
+        organized_data[ref][lang4] = stock
+    
+    html = generate_html_table(organized_data)
+    with open("output.html", "w") as f:
+        f.write(html)
+
+if __name__ == "__main__":
+    main()
+
+def fetch_nave1_data_nao_produzido(id_version):
+    query = f"""
+    SELECT DISTINCT
+        TRIM(lang4) AS lang4,
+        b.u_nave,
+        SUM(c.stock) AS stock_nao_produzido,
+        TRIM(b.usr1) AS marca,
+        TRIM(b.usr2) AS modelo,
+        TRIM(b.u_tamanho) AS tamanho
+    FROM u_prod_gama_operations_alb a
+    INNER JOIN st b ON a.ref = b.ref
+    INNER JOIN sa c ON b.ref = c.ref
+    WHERE id_version = '{id_version}'
+      AND b.u_nave = 1
+      AND c.armazem = 8
+      AND b.lang5 = ''
+      AND lang4 <> ''
+    GROUP BY b.usr1, b.usr2, b.u_tamanho, b.u_nave, lang4
+    """
+    conn_str = 'DRIVER={ODBC Driver 17 for SQL Server};SERVER=192.168.120.9;DATABASE=PHCTRI;UID=estagio;PWD=3stAg10..'
+    conn = pyodbc.connect(conn_str)
+    cursor = conn.cursor()
+    cursor.execute(query)
+    rows = cursor.fetchall()
+    
+    cleaned_rows = [
+        (
+            row[0].strip() if row[0] else None,  # lang4
+            row[2],  # stock_nao_produzido
+            row[3],  # marca
+            row[4],  # modelo
+            row[5],  # tamanho
+        )
+        for row in rows
+    ]
+    return cleaned_rows
+
+
+
+
+def fetch_all_marcas_modelos():
+    query = """
+    SELECT DISTINCT TRIM(usr1) AS marca, TRIM(usr2) AS modelo
+    FROM st
+    WHERE usr1 IS NOT NULL AND usr2 IS NOT NULL
+    """
+    conn_str = 'DRIVER={ODBC Driver 17 for SQL Server};SERVER=192.168.120.9;DATABASE=PHCTRI;UID=estagio;PWD=3stAg10..'
+    conn = pyodbc.connect(conn_str)
+    cursor = conn.cursor()
+    cursor.execute(query)
+    rows = cursor.fetchall()
+    
+    marcas = set()
+    modelos = set()
+    for row in rows:
+        marca = row[0].strip()
+        modelo = row[1].strip()
+        if marca: marcas.add(marca)
+        if modelo: modelos.add(modelo)
+
+        print('Marcas')
+        print(marcas)
+        print('Modelos')
+        print(modelos)
+    
+    return sorted(marcas), sorted(modelos)

@@ -35,6 +35,9 @@ def login_view(request):
 def home(request):
     return render(request, 'home/base.html', {'page_title':'Home'})
 
+def tempo(request):
+    return render(request, 'home/tempo.html', {'page_title':'Tempo'})
+
 
 
 

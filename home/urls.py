@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.contrib.auth import views as auth_views
 from ferramentas import settings
-from home.views import logout_view, login_view, home
+from home.views import logout_view, login_view, home, tempo
 from validadores import views
 from django.conf.urls.static import static  # Import the "static" module
 
@@ -19,6 +19,9 @@ urlpatterns = [
     path('login/', login_view, name="login"),
     path('home/', home, name='home'),
     path('', home, name='home'),
+    path('tempo/', tempo, name='tempo'),
+    
+
 
 
 

@@ -10,10 +10,17 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
+
     <style>
+
+        body {
+            background-color: #EBEBEB;
+        }
+
+
+
         .container_per {
             margin-top: 20px;
-            max-width: 75%;
             margin-left: auto;
             margin-right: auto;
         }
@@ -82,13 +89,13 @@
             text-decoration: none;
         }
         footer {
-            bottom: 0;
             width: 100%;
-            position: fixed;
             padding: 10px 0;
             /* Background*/
             background-color: #2e3b4e;
             color: white;
+            margin-top: auto;
+            width: 100%;
 
         }
 
@@ -99,6 +106,7 @@
         html {
           background-color: #ffffff;
         }
+
     </style>
 </head>
 <body>
@@ -116,6 +124,7 @@
                     <li><a class="dropdown-item" href="{% url 'cartao' %}">Cartão</a></li>
                     <li><a class="dropdown-item" href="{% url 'encomendas' %}">Encomendas</a></li>
                     <li><a class="dropdown-item" href="{% url 'producao' %}">Produtividade</a></li>
+                    <li><a class="dropdown-item" href="{% url 'nave1' %}">Produção Tubos</a></li>
                     <li><a class="dropdown-item" href="{% url 'qualidade' %}">Qualidade</a></li>
                     <li><a class="dropdown-item" href="{% url 'validadorGeral' %}">Validador Geral</a></li>
                     <li><a class="dropdown-item" href="{% url 'validadorView' %}">Validador do Da Entrada</a></li>
@@ -162,6 +171,7 @@
         <img src="{% static 'home/images/logo.png' %}" alt="logo" style="max-width: 350px; max-height: auto; padding: 10px;" >
     </nav>
       
+
       {% block content %}
 
     
@@ -199,6 +209,12 @@
                     <h3>PRODUTIVIDADE</h3>
                     <p>Verifica a produção de cada posto de trabalho</p>
                 </div>
+                <div class="col-md-3 feature" onclick="nave1()">
+                    <i class="fas fa-chart-line fa-2x"></i>
+                    <h3>PRODUÇÃO NAVE 1</h3>
+                    <p>Verifica a produção da Nave 1</p>
+                </div>
+
                 <div class="col-md-3 feature" onclick="cartao()">
                     <i class="fas fa-credit-card fa-2x"></i>
                     <h3>CARTÃO</h3>
@@ -302,9 +318,12 @@ document.addEventListener('DOMContentLoaded', function() {
       .assign("{% url 'producao' %}");
       }
 
-
-
-
+      function nave1() {
+      //redireciona para {% url 'validadorGeral' %
+      window
+      .location
+      .assign("{% url 'nave1' %}");
+      }
 
         function cartao() {
         //redireciona para {% url 'cartao' %
