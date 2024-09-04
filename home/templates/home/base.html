@@ -13,11 +13,6 @@
 
     <style>
 
-        body {
-            background-color: #EBEBEB;
-        }
-
-
 
         .container_per {
             margin-top: 20px;
@@ -88,16 +83,6 @@
             border-radius: 5px;
             text-decoration: none;
         }
-        footer {
-            width: 100%;
-            padding: 10px 0;
-            /* Background*/
-            background-color: #2e3b4e;
-            color: white;
-            margin-top: auto;
-            width: 100%;
-
-        }
 
         .highlight {
             border-radius: 5px; /* Bordas arredondadas */
@@ -106,150 +91,198 @@
         html {
           background-color: #ffffff;
         }
+/* Estilos gerais para o corpo da página */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Contêiner principal */
+.wrapper {
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Conteúdo da página */
+.content {
+    flex: 1;
+}
+
+/* Footer fixado na parte inferior */
+footer {
+    background-color: #f8f9fa;
+    text-align: center;
+    padding: 20px;
+    width: 100%;
+    /* Força o footer a ficar no final da página */
+    position: relative;
+    bottom: 0;
+}
+
+/* Adicionando altura mínima ao conteúdo para ocupar espaço quando necessário */
+html, body, .wrapper, .content {
+    min-height: 100vh;
+}
+
 
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container-fluid">
-            <div class="nav-item dropdown">
-                <a class="navbar-brand dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    {{page_title}}
-                </a>
-                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                  <li><a class="dropdown-item" href="{% url 'home' %}">Home</a></li>
+    <div class="wrapper">
+
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <div class="container-fluid">
+                <div class="nav-item dropdown">
+                    <a class="navbar-brand dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        {{page_title}}
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <li><a class="dropdown-item" href="{% url 'home' %}">Home</a></li>
 
 
 
-                    <li><a class="dropdown-item" href="{% url 'cartao' %}">Cartão</a></li>
-                    <li><a class="dropdown-item" href="{% url 'encomendas' %}">Encomendas</a></li>
-                    <li><a class="dropdown-item" href="{% url 'producao' %}">Produtividade</a></li>
-                    <li><a class="dropdown-item" href="{% url 'nave1' %}">Produção Tubos</a></li>
-                    <li><a class="dropdown-item" href="{% url 'qualidade' %}">Qualidade</a></li>
-                    <li><a class="dropdown-item" href="{% url 'validadorGeral' %}">Validador Geral</a></li>
-                    <li><a class="dropdown-item" href="{% url 'validadorView' %}">Validador do Da Entrada</a></li>
-                    <li><a class="dropdown-item" href="{% url 'validadorparent' %}">Validador do Parent</a></li>
-                    <li><a class="dropdown-item" href="{% url 'validadorOF' %}">Validador de OF</a></li>
-                    <li><a class="dropdown-item" href="{% url 'historico' %}">Historico</a></li>
+                        <li><a class="dropdown-item" href="{% url 'cartao' %}">Cartão</a></li>
+                        <li><a class="dropdown-item" href="{% url 'encomendas' %}">Encomendas</a></li>
+                        <li><a class="dropdown-item" href="{% url 'producao' %}">Produtividade</a></li>
+                        <li><a class="dropdown-item" href="{% url 'qualidade' %}">Qualidade</a></li>
+                        <li><a class="dropdown-item" href="{% url 'material' %}">Material</a></li>
+                        <li><a class="dropdown-item" href="{% url 'validadorGeral' %}">Validador Geral</a></li>
+                        <li><a class="dropdown-item" href="{% url 'validadorView' %}">Validador do Da Entrada</a></li>
+                        <li><a class="dropdown-item" href="{% url 'validadorparent' %}">Validador do Parent</a></li>
+                        <li><a class="dropdown-item" href="{% url 'validadorOF' %}">Validador de OF</a></li>
+                        <li><a class="dropdown-item" href="{% url 'historico' %}">Historico</a></li>
 
-                    {% if user.is_superuser %}
-                    <li><a class="dropdown-item" href="{% url 'admin:index' %}">Admin</a></li>
-                    {% endif %}
-                    {% if user.username|upper %}
-                    <li>                    <a href="{% url 'logout' %}" class="nav-link" >Logout</a>
-                    </li>
-                    {% else %}
-                    <li>                    <a href="{% url 'login' %}" class="nav-link" >Login</a>
-                    </li>
-                    {% endif %}
 
-                </ul>
+                        {% if user.is_superuser %}
+                        <li><a class="dropdown-item" href="{% url 'admin:index' %}">Admin</a></li>
+                        {% endif %}
+                        {% if user.username|upper %}
+                        <li>                    <a href="{% url 'logout' %}" class="nav-link" >Logout</a>
+                        </li>
+                        {% else %}
+                        <li>                    <a href="{% url 'login' %}" class="nav-link" >Login</a>
+                        </li>
+                        {% endif %}
+
+                    </ul>
+                </div>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarText">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0"></ul>
+                    <span class="navbar-text">
+                    </span>
+                </div>
             </div>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
-                <i class="fas fa-bars"></i>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarText">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0"></ul>
-                <span class="navbar-text">
-                </span>
-            </div>
-        </div>
-        <!--Nome do utilizador-->
-        <span class="navbar-text">
-                    <!--username com letra maiuscula-->
+            <!--Nome do utilizador-->
+            <span class="navbar-text">
+                        <!--username com letra maiuscula-->
 
 
-            {% if user.username %}
-            Bem-vindo, {{ user.username }}
-            {% endif %}
+                {% if user.username %}
+                Bem-vindo, {{ user.username }}
+                {% endif %}
 
 
 
 
-        </span>
+            </span>
+            
+            <img src="{% static 'home/images/logo.png' %}" alt="logo" style="max-width: 350px; max-height: auto; padding: 10px;" >
+        </nav>
         
-        <img src="{% static 'home/images/logo.png' %}" alt="logo" style="max-width: 350px; max-height: auto; padding: 10px;" >
-    </nav>
-      
 
-      {% block content %}
+        <div class="content">
+            {% block content %}
 
-    
-    <div class="hero-section text-center">
-        <video autoplay muted loop>
-          <source src="{% static 'home/videos/video.mp4' %}" type="video/mp4">
-          Seu navegador não suporta a tag de vídeo.
-        </video>
-        <div class="content highlight">
-            <h1>Bem-vindo à página de ferramentas da Triangles!</h1>
-            <p>Explore nossas soluções e descubra como podemos ajudar a otimizar seus projetos e tarefas diárias.</p>
-        </div>
-    </div>
-
-    <div class="features-section">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-3 feature" onclick="of()">
-                    <i class="fas fa-unlock-alt fa-2x"></i>
-                    <h3>VALIDADOR DE OF</h3>
-                    <p>Verifica o motivo do bloqueio e desbloqueia</p>
-                </div>
-                <div class="col-md-3 feature" onclick="gamas()">
-                    <i class="fas fa-check-double fa-2x"></i>
-                    <h3>VALIDADOR DE GAMAS</h3>
-                    <p>Verifica se a gama foi criada corretamente</p>
-                </div>
-                <div class="col-md-3 feature" onclick="encomendas()">
-                    <i class="fas fa-box-open fa-2x"></i>
-                    <h3>ENCOMENDAS</h3>
-                    <p>Verifica o status de cada encomenda</p>
-                </div>
-                <div class="col-md-3 feature" onclick="producao()">
-                    <i class="fas fa-chart-line fa-2x"></i>
-                    <h3>PRODUTIVIDADE</h3>
-                    <p>Verifica a produção de cada posto de trabalho</p>
-                </div>
-                <div class="col-md-3 feature" onclick="nave1()">
-                    <i class="fas fa-chart-line fa-2x"></i>
-                    <h3>PRODUÇÃO NAVE 1</h3>
-                    <p>Verifica a produção da Nave 1</p>
-                </div>
-
-                <div class="col-md-3 feature" onclick="cartao()">
-                    <i class="fas fa-credit-card fa-2x"></i>
-                    <h3>CARTÃO</h3>
-                    <p>Gera um Cartão de Funcionário</p>
-                </div>
-                <!--qualidade-->
-                <div class="col-md-3 feature" onclick="qualidade()">
-                    <i class="fas fa-clipboard-check fa-2x"></i>
-                    <h3>QUALIDADE</h3>
-                    <p>Consulta de Artigos</p>
-                </div>
-                <div class="col-md-3 feature" onclick="parque()">
-                    <i class="fas fa-laptop fa-2x"></i>
-                    <h3>Parque Informático</h3>
-                    <p>Gestão de Equipamentos da empresa</p>
-                </div>
                 
+                <div class="hero-section text-center">
+                    <video autoplay muted loop>
+                    <source src="{% static 'home/videos/video.mp4' %}" type="video/mp4">
+                    Seu navegador não suporta a tag de vídeo.
+                    </video>
+                    <div class="content highlight">
+                        <h1>Bem-vindo à página de ferramentas da Triangles!</h1>
+                        <p>Explore nossas soluções e descubra como podemos ajudar a otimizar seus projetos e tarefas diárias.</p>
+                    </div>
+                </div>
+
+                <div class="features-section">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-md-3 feature" onclick="of()">
+                                <i class="fas fa-unlock-alt fa-2x"></i>
+                                <h3>VALIDADOR DE OF</h3>
+                                <p>Verifica o motivo do bloqueio e desbloqueia</p>
+                            </div>
+                            <div class="col-md-3 feature" onclick="gamas()">
+                                <i class="fas fa-check-double fa-2x"></i>
+                                <h3>VALIDADOR DE GAMAS</h3>
+                                <p>Verifica se a gama foi criada corretamente</p>
+                            </div>
+                            <div class="col-md-3 feature" onclick="encomendas()">
+                                <i class="fas fa-box-open fa-2x"></i>
+                                <h3>ENCOMENDAS</h3>
+                                <p>Verifica o status de cada encomenda</p>
+                            </div>
+                            <div class="col-md-3 feature" onclick="producao()">
+                                <i class="fas fa-chart-line fa-2x"></i>
+                                <h3>PRODUTIVIDADE</h3>
+                                <p>Verifica a produção de cada posto de trabalho</p>
+                            </div>
+                            <!--
+                            <div class="col-md-3 feature" onclick="nave1()">
+                                <i class="fas fa-chart-line fa-2x"></i>
+                                <h3>PRODUÇÃO NAVE 1</h3>
+                                <p>Verifica a produção da Nave 1</p>
+                            </div>
+                            -->
+
+                            <div class="col-md-3 feature" onclick="cartao()">
+                                <i class="fas fa-credit-card fa-2x"></i>
+                                <h3>CARTÃO</h3>
+                                <p>Gera um Cartão de Funcionário</p>
+                            </div>
+                            <!--qualidade-->
+                            <div class="col-md-3 feature" onclick="qualidade()">
+                                <i class="fas fa-clipboard-check fa-2x"></i>
+                                <h3>QUALIDADE</h3>
+                                <p>Consulta de Artigos</p>
+                            </div>
+                            <div class="col-md-3 feature" onclick="material()">
+                                <i class="fas fa-industry fa-2x"></i> 
+                                <h3>Material</h3>
+                                <p>Gestão de Material da empresa</p>
+                            </div>
+                            
+
+                            
+                        </div>
+                    </div>
+                </div>
+
+                <div class="suggestions-section text-center">
+                    <div class="container">
+                        <h2>Sugestões?</h2>
+                        <p>Precisa de ajuda com alguma aplicação ou vê uma necessidade que poderia ser resolvida? Estamos aqui para ajudar. Entre em contato com o departamento de TI e encontraremos a melhor solução!</p>
+                        <a href="http://192.168.120.12/open.php" class="btn">CLIQUE AQUI</a>
+                    </div>
+                </div>
+            {% endblock %}
+        </div>
+
+        
+
+        <footer class="mt-5">
+            <div class="container">
+                <span>© 2024 - Departamento de Sistemas de Informação</span>
             </div>
-        </div>
+        </footer>
     </div>
-
-    <div class="suggestions-section text-center">
-        <div class="container">
-            <h2>Sugestões?</h2>
-            <p>Precisa de ajuda com alguma aplicação ou vê uma necessidade que poderia ser resolvida? Estamos aqui para ajudar. Entre em contato com o departamento de TI e encontraremos a melhor solução!</p>
-            <a href="http://192.168.120.12/open.php" class="btn">CLIQUE AQUI</a>
-        </div>{% endblock %}
-    </div>
-    
-
-    <footer class="mt-5">
-        <div class="container">
-            <span>© 2024 - Departamento de Sistemas de Informação</span>
-        </div>
-    </footer>
 
     <!--Importar cdn bootstrap js-->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -318,13 +351,6 @@ document.addEventListener('DOMContentLoaded', function() {
       .assign("{% url 'producao' %}");
       }
 
-      function nave1() {
-      //redireciona para {% url 'validadorGeral' %
-      window
-      .location
-      .assign("{% url 'nave1' %}");
-      }
-
         function cartao() {
         //redireciona para {% url 'cartao' %
         window
@@ -345,6 +371,14 @@ document.addEventListener('DOMContentLoaded', function() {
         .location
         .assign("http://192.168.120.102");
         }
+        function material() {
+        //redireciona para {% url 'qualidade' %
+        window
+        .location
+        .assign("{% url 'material' %}");
+        }
+
+
 
 
 

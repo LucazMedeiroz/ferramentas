@@ -13,6 +13,7 @@ urlpatterns = [
     path('ajax/get_componentes/', get_componentes_ajax, name='get_componentes_ajax'),
     path('ajax/get_seccoes/', get_seccoes_view, name='get_seccao'),
     path('ajax/get_ct_designs/', get_ct_designs_ajax, name='get_ct_designs_ajax'),
+    path('material/', material, name='material'),
 
 
 

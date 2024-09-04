@@ -196,3 +196,66 @@ def get_ct_designs(seccao=None):
     conn.close()
     return ct_designs
 
+#------------------------------------------------------------------------------
+# FunÇÕES PARA AS PÁGINAS DE CORTE E LASER
+
+import pyodbc
+
+def get_of_id(of):
+    conn = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};SERVER=192.168.120.9;DATABASE=PHCTRI;UID=estagio;PWD=3stAg10..')
+    cursor = conn.cursor()
+    query = f"SELECT id FROM u_fo_alb WHERE obrano_fo = '{of}'"
+    cursor.execute(query)
+    rows = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return rows[0][0] if rows else None
+
+def get_of_details(of):
+    id = get_of_id(of)
+    if id is None:
+        return []
+
+    conn = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};SERVER=192.168.120.9;DATABASE=PHCTRI;UID=estagio;PWD=3stAg10..')
+    cursor = conn.cursor()
+    query = f"""
+        SELECT 
+            u_fo_alb.obrano_fo,
+            u_fo_alb.reserva,
+            u_fo_alb.consumo,
+            u_fo_alb.qtt_real,
+            u_fo_alb.qtt_produzida,
+            bi.ref,
+            bi.design,
+            bi.qtt,
+            bi.unidade,
+            st.unidade 
+        FROM u_fo_alb
+        INNER JOIN bi ON u_fo_alb.reserva = bi.bostamp
+        INNER JOIN st ON bi.ref = st.ref
+        WHERE ofparent = '{id}' AND operation_id IN (100, 101)
+    """
+    cursor.execute(query)
+    rows = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return rows
+
+def get_material(obrano_fo):
+    conn = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};SERVER=192.168.120.9;DATABASE=PHCTRI;UID=estagio;PWD=3stAg10..')
+    cursor = conn.cursor()
+    query = f"""
+        SELECT 
+            st.design,
+            (u_fo_alb.qtt_real - u_fo_alb.qtt_produzida) AS FALTA,
+
+            st.u_lenght
+        FROM u_fo_alb
+        INNER JOIN st ON st.ref = u_fo_alb.ref
+        WHERE obrano_fo = '{obrano_fo}'
+    """
+    cursor.execute(query)
+    rows = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return rows

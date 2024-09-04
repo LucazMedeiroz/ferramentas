@@ -201,7 +201,7 @@ def encomendasAbertas(request):
 
 from django.http import JsonResponse
 
-from .utils import get_clientes_marcas_modelos
+from .utils import get_clientes_marcas_modelos, tipoGama
 
 def get_marcas(request):
     cliente_id = request.GET.get('cliente_id')
@@ -298,7 +298,7 @@ def encomendasAbertasExcel(request):
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 from django.shortcuts import render
-from .utils import fetch_id_versions, fetch_nave1_data, fetch_marca_modelo_tamanho, fetch_nave1_data_nao_produzido, fetch_all_marcas_modelos
+#from .utils import fetch_id_versions, fetch_nave1_data, fetch_marca_modelo_tamanho, fetch_nave1_data_nao_produzido, fetch_all_marcas_modelos
 
 import pyodbc
 
@@ -327,8 +327,8 @@ def fetch_marcas_modelos():
     return marcas_modelos
 
 
-
-def nave1(request):
+'''
+def nave11(request):
     id_versions = fetch_id_versions()
     organized_data = {}
 
@@ -426,3 +426,126 @@ def nave1(request):
         'page_title':'Produção Tubos', 
 
     })
+
+def nave1(request):
+    if request.method == 'POST':
+        marca = request.POST.get('marca')
+        modelo = request.POST.get('modelo')
+        tipo = request.POST.get('tipo')
+
+        id_versions = fetch_id_versions()
+        organized_data = {}
+
+        search_marca = request.GET.get('marca', '').strip()
+        search_modelo = request.GET.get('modelo', '').strip()
+
+        all_marcas_modelos = fetch_marcas_modelos()
+        all_marcas = sorted(all_marcas_modelos.keys())
+
+        marcas_modelos_json = json.dumps(all_marcas_modelos)
+
+        for id_version in id_versions:
+            produced_rows = fetch_nave1_data(id_version)
+            for row in produced_rows:
+                ref = row[8]
+                lang4 = row[0]
+                stock_produzido = row[2]
+                obrano_of = row[3]
+                ofparent = row[4]
+                status = row[5]
+                qtt_real = row[6]
+                qtt_produzida = row[7]
+                ref_sub = row[8]
+                status_sub = row[9]
+                sequencial = row[10]
+                qtd_encomenda = row[11]
+
+                if ref not in organized_data:
+                    marca, modelo, tamanho = fetch_marca_modelo_tamanho(ref)
+                    if (search_marca and search_marca != marca) or (search_modelo and search_modelo != modelo):
+                        continue
+
+                    organized_data[ref] = {
+                        'details': {
+                            'marca': marca,
+                            'modelo': modelo,
+                            'tamanho': tamanho,
+                            'subdata': []
+                        },
+                        'lang4': {},
+                        'nao_produzido': {}
+                    }
+
+                subdata_entry = {
+                    'obrano_of': obrano_of,
+                    'ofparent': ofparent,
+                    'status': status,
+                    'qtt_real': qtt_real,
+                    'qtt_produzida': qtt_produzida,
+                    'ref_sub': ref_sub,
+                    'status_sub': status_sub,
+                    'sequencial': sequencial,
+                    'qtd_encomenda': qtd_encomenda
+                }
+
+                if subdata_entry not in organized_data[ref]['details']['subdata']:
+                    organized_data[ref]['details']['subdata'].append(subdata_entry)
+
+                organized_data[ref]['lang4'][lang4] = stock_produzido
+
+            nao_produzido_rows = fetch_nave1_data_nao_produzido(id_version)
+            for row in nao_produzido_rows:
+                lang4 = row[0]
+                stock_nao_produzido = row[1]
+                marca = row[2]
+                modelo = row[3]
+                tamanho = row[4]
+
+                if ref not in organized_data:
+                    if (search_marca and search_marca != marca) or (search_modelo and search_modelo != modelo):
+                        continue
+
+                    organized_data[ref] = {
+                        'details': {
+                            'marca': marca,
+                            'modelo': modelo,
+                            'tamanho': tamanho,
+                             'qtd_encomenda': qtd_encomenda,  # Adicione isto aqui
+
+                            'subdata': []
+                        },
+                        'lang4': {},
+                        'nao_produzido': {}
+                    }
+
+                organized_data[ref]['nao_produzido'][lang4] = stock_nao_produzido
+
+        lang4_keys = ['CS', 'SS', 'DRP', 'MB', 'HT', 'DT', 'TT', 'ST']
+
+        return render(request, 'encomendas/nave1.html', {
+            'data': organized_data,
+            'lang4_keys': lang4_keys,
+            'search_marca': search_marca,
+            'search_modelo': search_modelo,
+            'all_marcas': all_marcas,
+            'all_marcas_modelos': all_marcas_modelos,
+            'marcas_modelos_json': marcas_modelos_json,
+            'page_title':'Produção Tubos', 
+            'tipo': tipo
+        })
+
+
+
+    else:
+        marcas_por_tipo = fetch_marcas_por_tipo()
+        tipos = sorted(marcas_por_tipo.keys())
+        marcas_modelos_json = json.dumps(marcas_por_tipo)
+
+        return render(request, 'encomendas/nave1.html', {
+            'marcas_por_tipo': marcas_por_tipo,
+            'marcas_modelos_json': marcas_modelos_json,
+            'tipos': tipos,
+            'page_title': 'Produção Tubos',
+        })
+        '''
+

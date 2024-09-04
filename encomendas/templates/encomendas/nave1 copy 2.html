@@ -127,29 +127,25 @@ th {
             <p style="float: right;">{{hoje}}</p>
         </div>
 
-        <form method="post" action="{% url 'nave1' %}" class="mb-3">
-            {% csrf_token %}
+        <form method="get" action="{% url 'nave1' %}" class="mb-3">
             <div class="form-group">
-                <label for="tipo">Tipo</label>
-                <select id="tipo" name="tipo" class="form-control">
-                    <option value="">Selecione o Tipo</option>
-                    {% for tipo in tipos %}
-                        <option value="{{ tipo }}" {% if tipo == search_tipo %}selected{% endif %}>{{ tipo }}</option>
+                <label for="marca">Marca</label>
+                <select id="marca" name="marca" class="form-control">
+                    <option value="">Selecione a Marca</option>
+                    {% for marca in all_marcas %}
+                        <option value="{{ marca }}" {% if marca == search_marca %}selected{% endif %}>{{ marca }}</option>
                     {% endfor %}
                 </select>
             </div>
-
-            <div class="form-group">
-                <label for="marca">Marca</label>
-                <select id="marca" name="marca" class="form-control" disabled>
-                    <option value="">Selecione a Marca</option>
-                </select>
-            </div>
-
             <div class="form-group">
                 <label for="modelo">Modelo</label>
-                <select id="modelo" name="modelo" class="form-control" disabled>
+                <select id="modelo" name="modelo" class="form-control">
                     <option value="">Selecione o Modelo</option>
+                    {% if search_marca %}
+                        {% for modelo in all_marcas_modelos|get_item:search_marca %}
+                            <option value="{{ modelo }}" {% if modelo == search_modelo %}selected{% endif %}>{{ modelo }}</option>
+                        {% endfor %}
+                    {% endif %}
                 </select>
             </div>
             <button type="submit" class="btn btn-primary">Pesquisar</button>
@@ -173,104 +169,7 @@ th {
 
     
     
-    {% if tipo == 'Quadro' %} 
-            
-        <div class="table-responsive" style="width: 95%; min-height: 450px; max-height: 800px; margin-left: auto; margin-right: auto;">
-            <table border="1" class="table table-striped table-bordered border-dark table-hover">
-                <thead class="order-thead">
-                    <tr>
-                        <th rowspan="3">Ref</th>
-                        <th rowspan="3">Marca</th>
-                        <th rowspan="3">Modelo</th>
-                        <th rowspan="3">Tamanho</th>
 
-                        <th colspan="8">RT</th> <!-- Header for RT columns -->
-                        <th colspan="8">FT</th> <!-- Header for FT columns -->
-                    </tr>
-                    <tr>
-                        <th colspan="2">CS</th>
-                        <th colspan="2">SS</th>
-                        <th colspan="2">DRP</th>
-                        <th colspan="2">MB</th>
-                        <th colspan="2">HT</th>
-                        <th colspan="2">DT</th>
-                        <th colspan="2">TT</th>
-                        <th colspan="2">ST</th>
-                    </tr>
-                    <tr>
-                        <th>Não Produzido</th>
-                        <th>Produzido</th>
-                        <th>Não Produzido</th>
-                        <th>Produzido</th>
-                        <th>Não Produzido</th>
-                        <th>Produzido</th>
-                        <th>Não Produzido</th>
-                        <th>Produzido</th>
-                        <th>Não Produzido</th>
-                        <th>Produzido</th>
-                        <th>Não Produzido</th>
-                        <th>Produzido</th>
-                        <th>Não Produzido</th>
-                        <th>Produzido</th>
-                        <th>Não Produzido</th>
-                        <th>Produzido</th>
-
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for ref, details in data.items %}
-                        <tr data-bs-toggle="collapse" data-bs-target="#details-{{ forloop.counter }}">
-                            <td>{{ ref }}</td>
-                            <td>{{ details.details.marca }}</td>
-                            <td>{{ details.details.modelo }}</td>
-                            <td>{{ details.details.tamanho }}</td>
-                            {% for key in lang4_keys %}
-                            <td>{{ details.nao_produzido|get_item:key|default:''|floatformat:0  }}</td>
-                            <td>{{ details.lang4|get_item:key|default:''|floatformat:0 }}</td>
-                            
-                            {% endfor %}
-                        </tr>
-                        <tr class="collapse" id="details-{{ forloop.counter }}">
-                            <td colspan="20">
-                                <table class="table table-bordered">
-                                    <thead>
-                                        <tr>
-                                            <th>OF</th>
-                                            <th>OF Parent</th>
-                                            <th>Status</th>
-                                            <th>Qtd Real</th>
-                                            <th>Qtd Produzida</th>
-                                            <th>Sub-Ref</th>
-                                            <th>Status Sub</th>
-                                            <th>Sequencial</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for sub in details.details.subdata %}
-                                            <tr>
-                                                <td>{{ sub.obrano_of }}</td>
-                                                <td>{{ sub.ofparent }}</td>
-                                                <td>{{ sub.status }}</td>
-                                                <td>{{ sub.qtt_real }}</td>
-                                                <td>{{ sub.qtt_produzida }}</td>
-                                                <td>{{ sub.ref_sub }}</td>
-                                                <td>{{ sub.status_sub }}</td>
-                                                <td>{{ sub.sequencial }}</td>
-                                            </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        
-        <span></span>
-        <br><br>
-
-    {% endif %}
 
     <div class="table-responsive" style="width: 95%; min-height: 450px; max-height: 800px; margin-left: auto; margin-right: auto;">
         <table border="1" class="table table-striped table-bordered border-dark table-hover">
@@ -280,7 +179,6 @@ th {
                     <th rowspan="3">Marca</th>
                     <th rowspan="3">Modelo</th>
                     <th rowspan="3">Tamanho</th>
-
                     <th colspan="8">RT</th> <!-- Header for RT columns -->
                     <th colspan="8">FT</th> <!-- Header for FT columns -->
                 </tr>
@@ -375,52 +273,25 @@ th {
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 
-
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const tipoSelect = document.getElementById('tipo');
         const marcaSelect = document.getElementById('marca');
         const modeloSelect = document.getElementById('modelo');
 
         const marcasModelos = JSON.parse('{{ marcas_modelos_json|escapejs }}');
 
-        tipoSelect.addEventListener('change', function() {
-            const selectedTipo = tipoSelect.value;
-
-            marcaSelect.innerHTML = '<option value="">Selecione a Marca</option>';
-            modeloSelect.innerHTML = '<option value="">Selecione o Modelo</option>';
-            modeloSelect.disabled = true;
-
-            if (selectedTipo && marcasModelos[selectedTipo]) {
-                const marcas = Object.keys(marcasModelos[selectedTipo]);
-                marcas.forEach(function(marca) {
-                    const option = document.createElement('option');
-                    option.value = marca;
-                    option.text = marca;
-                    marcaSelect.add(option);
-                });
-                marcaSelect.disabled = false;
-            } else {
-                marcaSelect.disabled = true;
-            }
-        });
-
         marcaSelect.addEventListener('change', function() {
-            const selectedTipo = tipoSelect.value;
             const selectedMarca = marcaSelect.value;
 
             modeloSelect.innerHTML = '<option value="">Selecione o Modelo</option>';
 
-            if (selectedMarca && marcasModelos[selectedTipo] && marcasModelos[selectedTipo][selectedMarca]) {
-                marcasModelos[selectedTipo][selectedMarca].forEach(function(modelo) {
+            if (selectedMarca && marcasModelos[selectedMarca]) {
+                marcasModelos[selectedMarca].forEach(function(modelo) {
                     const option = document.createElement('option');
                     option.value = modelo;
                     option.text = modelo;
                     modeloSelect.add(option);
                 });
-                modeloSelect.disabled = false;
-            } else {
-                modeloSelect.disabled = true;
             }
         });
     });

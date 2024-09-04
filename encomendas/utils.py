@@ -440,6 +440,7 @@ def salvar_detalhes_excel(data):
 
 
 #nave1
+'''
 import pyodbc
 
 def fetch_id_versions():
@@ -482,12 +483,15 @@ def fetch_nave1_data(id_version):
         TRIM(e.ref) AS ref,
         e.obrano_fo,
         e.status,
-        e.sequencial
+        e.sequencial,
+        bi.qtt
     FROM u_prod_gama_operations_alb a
     INNER JOIN st b ON a.ref = b.ref
     INNER JOIN sa c ON b.ref = c.ref
     INNER JOIN u_fo_alb d ON a.ref = d.ref
     INNER JOIN u_fo_alb e ON d.ofparent = e.id
+    left join bi
+    on b.ref = bi.ref
     WHERE id_version = '{id_version}'
       AND b.u_nave = 1
       AND c.armazem = 8
@@ -496,7 +500,7 @@ def fetch_nave1_data(id_version):
       AND d.qtt_produzida > 0
     GROUP BY e.ref, lang4, b.u_nave, c.stock, d.obrano_fo, d.ofparent,
              d.status, d.qtt_real, d.qtt_produzida, e.ref, e.obrano_fo,
-             e.status, e.sequencial
+             e.status, e.sequencial, bi.qtt
     """
     conn_str = 'DRIVER={ODBC Driver 17 for SQL Server};SERVER=192.168.120.9;DATABASE=PHCTRI;UID=estagio;PWD=3stAg10..'
     conn = pyodbc.connect(conn_str)
@@ -632,17 +636,65 @@ def fetch_all_marcas_modelos():
     cursor.execute(query)
     rows = cursor.fetchall()
     
-    marcas = set()
-    modelos = set()
+    marcas_modelos = {}
     for row in rows:
         marca = row[0].strip()
         modelo = row[1].strip()
-        if marca: marcas.add(marca)
-        if modelo: modelos.add(modelo)
-
-        print('Marcas')
-        print(marcas)
-        print('Modelos')
-        print(modelos)
+        if marca:
+            if marca not in marcas_modelos:
+                marcas_modelos[marca] = set()
+            if modelo:
+                marcas_modelos[marca].add(modelo)
     
-    return sorted(marcas), sorted(modelos)
+    # Converte os sets para listas
+    for marca in marcas_modelos:
+        marcas_modelos[marca] = sorted(marcas_modelos[marca])
+
+    return marcas_modelos
+
+def fetch_marcas_por_tipo():
+    query = """
+    SELECT DISTINCT TRIM(st.usr1) AS marca, TRIM(st.usr2) AS modelo, TRIM(gt.name) AS tipo
+    FROM st
+    INNER JOIN u_prod_gama_versao_alb pgv ON pgv.main_ref = st.ref
+    INNER JOIN u_gama_type_alb gt ON gt.id = pgv.type
+    WHERE st.usr1 IS NOT NULL AND st.usr2 IS NOT NULL and gt.id in (1,5,7)
+    """
+    
+    conn_str = 'DRIVER={ODBC Driver 17 for SQL Server};SERVER=192.168.120.9;DATABASE=PHCTRI;UID=estagio;PWD=3stAg10..'
+    conn = pyodbc.connect(conn_str)
+    cursor = conn.cursor()
+    cursor.execute(query)
+    rows = cursor.fetchall()
+
+    marcas_por_tipo = {}
+
+    for row in rows:
+        marca = row[0].strip()
+        modelo = row[1].strip()
+        tipo = row[2].strip()
+
+        if tipo not in marcas_por_tipo:
+            marcas_por_tipo[tipo] = {}
+
+        if marca not in marcas_por_tipo[tipo]:
+            marcas_por_tipo[tipo][marca] = []
+
+        marcas_por_tipo[tipo][marca].append(modelo)
+
+    return marcas_por_tipo
+
+
+    '''
+
+def tipoGama():
+    query = """
+    SELECT id, type FROM u_prod_gama_versao_alb where type in (1,5,7)
+    """
+    conn_str = 'DRIVER={ODBC Driver 17 for SQL Server};SERVER=192.168.120.9;DATABASE=PHCTRI;UID=estagio;PWD=3stAg10..'
+    conn = pyodbc.connect(conn_str)
+    cursor = conn.cursor()
+    cursor.execute(query)
+    rows = cursor.fetchall()
+    return rows
+

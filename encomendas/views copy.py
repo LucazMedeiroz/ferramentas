@@ -321,6 +321,7 @@ def nave1(request):
             qtt_produzida = row[7]
             status_sub = row[9]
             sequencial = row[10]
+            
 
             key = (marca, modelo, tamanho)
             

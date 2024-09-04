@@ -193,3 +193,33 @@ def logout(request):
 
 '''
 
+from django.shortcuts import render
+from .utils import get_of_details, get_material
+
+from django.shortcuts import render
+from .utils import get_of_details, get_material
+
+def material(request):
+    results = []
+    error_message = None
+    falta_value = None  # Inicialize falta_value com None para garantir que sempre tenha um valor
+
+    if request.method == 'POST':
+        of = request.POST.get('of')
+        if of:  # Certifique-se de que um valor foi fornecido
+            of_details = get_of_details(of)
+            if of_details:
+                for row in of_details:
+                    obrano_fo = row[0]
+                    materials = get_material(obrano_fo)
+                    results.append((row, materials))
+                
+                # Defina falta_value usando o valor da primeira linha de of_details
+                falta_value = of_details[0][5]  # A coluna "FALTA" está no índice 5
+            else:
+                error_message = 'OF não encontrada.'
+        else:
+            error_message = 'Por favor, insira uma OF válida.'
+
+    # Passe falta_value ao template mesmo que não haja resultados
+    return render(request, 'producao/material.html', {'results': results, 'error_message': error_message, 'falta_value': falta_value, 'page_title':'Material'})
