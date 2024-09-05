@@ -221,15 +221,14 @@ def get_of_details(of):
     query = f"""
         SELECT 
             u_fo_alb.obrano_fo,
-            u_fo_alb.reserva,
-            u_fo_alb.consumo,
             u_fo_alb.qtt_real,
             u_fo_alb.qtt_produzida,
             bi.ref,
             bi.design,
             bi.qtt,
-            bi.unidade,
-            st.unidade 
+            st.unidade,
+            u_fo_alb.status
+
         FROM u_fo_alb
         INNER JOIN bi ON u_fo_alb.reserva = bi.bostamp
         INNER JOIN st ON bi.ref = st.ref
@@ -259,3 +258,14 @@ def get_material(obrano_fo):
     cursor.close()
     conn.close()
     return rows
+
+def get_componente(ref):
+    conn = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};SERVER=192.168.120.9;DATABASE=PHCTRI;UID=estagio;PWD=3stAg10..')
+    cursor = conn.cursor()
+    cursor.execute("SELECT lang4 FROM st WHERE ref = ?", ref)  
+    rows = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return rows[0][0] if rows else None
+
+

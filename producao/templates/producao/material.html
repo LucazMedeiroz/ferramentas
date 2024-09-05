@@ -10,60 +10,56 @@
     <style>
         table {
             border-collapse: collapse;
-        }
-
-        .table_pai {
             width: 80%;
             margin: 0 auto;
+            border: 2px solid black; /* Borda preta somente ao redor da tabela */
         }
 
+        .table_pai th, .table_pai td {
+            padding: 8px;
+            text-align: left;
+            border: 1px solid #ddd; /* Borda cinza claro para as células internas */
+        }
 
+        .material-table th, .material-table td {
+            padding: 4px;
+            text-align: left;
+            border: 1px solid #ddd; /* Borda cinza claro */
+        }
 
-    .table_pai th, .table_pai td {
-        padding: 8px;
-        text-align: left;
-        border: 1px solid #ddd;
-    }
-
-    .material-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin: 0; /* Remove qualquer margem extra */
-    }
-
-    .material-table th, .material-table td {
-        padding: 4px; /* Ajuste o padding conforme necessário */
-        text-align: left;
-        border: 1px solid #ddd;
-    }
-
-    .table_pai td {
-        vertical-align: top; /* Garante que o alinhamento vertical seja consistente */
-    }
-    
-    .material-table td {
-        vertical-align: top; /* Garante que o alinhamento vertical seja consistente */
-    }
+        .table_pai td, .material-table td {
+            vertical-align: top;
+        }
 
         th, td {
             padding: 8px;
             text-align: left;
-            border: 1px solid #ddd;
+            border: 1px solid #ddd; /* Borda cinza claro */
         }
 
         th {
-            background-color: #f2f2f2;
+            background-color: #e0e0e0;
         }
 
-        .material-table {
-            margin-top: 10px;
+        .status-diferente {
+            background-color: rgba(255, 228, 196, 0.623); /* cor de fundo diferente */
         }
 
-        input[type="text"], input[type="number"] {
-            box-sizing: border-box;
+        thead {
+            background-color: rgba(139, 139, 136, 0.322);
+        }
+
+        /* Linha divisória entre cabeçalho superior e inferior */
+        thead tr:first-child {
+            border-bottom: 2px solid black; /* Linha preta mais grossa entre o cabeçalho superior e inferior */
+        }
+
+        /* Borda externa preta ao redor da tabela */
+        table {
+            border: 2px solid black;
         }
     </style>
-</head>
+    </head>
 <body>
 
     <div class="container">
@@ -84,137 +80,134 @@
     </div>
 
 
-        <div class="table-responsive">
-            {% if results %}
-            <table class="table_pai">
-                <thead>
-                    <tr>
-                        <th>OF</th>
-                        <th>Reserva</th>
-                        <th>Consumo</th>
-                        <th>Qtd.</th>
-                        <th>Qtd. Produzida</th>
-                        <th>REF</th>
-                        <th>Design</th>
-                        <th>bi_qtt</th>
-                        <th>bi_unidade</th>
-                        <th>st_unidade</th>
-                        <th>Materials</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for row, materials in results %}
-                    <tr>
-                        {% for item in row %}
-                        <td>{{ item }}</td>
-                        {% endfor %}
-                        <td>
-                            <table class="material-table">
-                                <thead>
-                                    <tr>
-                                        <th>Peça</th>
-                                        <th>Falta</th> <!-- Cabeçalho da coluna FALTA -->
-                                        <th>Lenght</th>
-                                        <th>Espessura Disco</th>
-                                        <th>Comprimento barra</th>  
-                                        <th>Barras</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for material in materials %}
-                                    <tr>
-                                        {% for item in material %}
-                                        <td>
-                                            {% if forloop.counter == 1 %}
-                                                <!-- Campo Design -->
-                                                <span class="design_field">{{ item }}</span>
-
-                                            {% elif forloop.counter == 2 %}
-                                                <!-- Campo FALTA com a classe falta_field -->
-                                                <span class="falta_field">{{ item }}</span>
-                                            {% elif forloop.counter == 3 %}
-                                                <!-- Campo u_lenght com a classe u_lenght_field -->
-                                                <input type="text" value="{{ item }}" class="u_lenght_field" {% if item %} readonly {% endif %}>
-                                            {% else %}
-                                                {{ item }}
-                                            {% endif %}
-                                        </td>
-                                        {% endfor %}
-                                        <td>
-                                            <!-- Novo campo de input para "espessura_disco" -->
-                                            <input type="number" value="" class="espessura_disco_field">
-                                        </td>
-                                        <td>
-                                            <!-- Novo campo de input para "comprimento_barra" -->
-                                            <input type="number" value="" class="comprimento_field">
-                                        </td>
-                                        <td>
-                                            <!-- Novo campo de input para "qtd_peças" -->
-                                            <input type="number" value="" class="qtd_field" readonly>
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                            
-                        </td>
-                    </tr>
+    <div class="table-responsive">
+        {% if results %}
+        <table class="table_pai">
+            <thead>
+                <tr >
+                    <td colspan="3" style="font-size: x-large; text-align: center; background-color:rgba(139, 139, 136, 0.322);">OF: {{of}} </td>
+                    <td colspan="5" style="font-size: x-large;  text-align: center; background-color:rgba(139, 139, 136, 0.322);">Materiais</td>
+                    <td colspan="6"style="font-size: x-large;  text-align: center; background-color:rgba(139, 139, 136, 0.322);">Peças</td>
+                </tr>
+                <tr>
+                    <th>OF</th>
+                    <th>Qtd.</th>
+                    <th>Qtd. Produzida</th>
+                    <th>Ref</th>
+                    <th>Design</th>
+                    <th>Qtd</th>
+                    <th>Unidade</th>
+                    <th style="display: none;">Status</th>
+                    <th>Componente</th>
+                    <th>Peça</th>
+                    <th>Falta</th>
+                    <th>Lenght</th>
+                    <th>Espessura do Disco</th>
+                    <th>Comprimento da Barra</th>
+                    <th>Barras</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row, componente, materials in results %}
+                <tr class="{% if row.7 != 2 %}status-diferente{% endif %}">
+                    {% for item in row %}
+                        {% if forloop.counter == 8 %}
+                            <td style="display: none;">{{ item }}</td>
+                        {% else %}
+                            <td>{{ item }}</td>
+                        {% endif %}
                     {% endfor %}
-                </tbody>
-            </table>
-        </div>
+                    <td>{{ componente }}</td>
+                    {% for material in materials %}
+                    {% for item in material %}
 
+
+                    <td>
+                        {% if forloop.counter == 1 %}
+                            <span class="design_field">{{ item }}</span>
+                        {% elif forloop.counter == 2 %}
+                            <span class="falta_field">{{ item }}</span>
+                        {% elif forloop.counter == 3 %}
+                            {% if item == 0 %}
+                                <input type="number" value="" class="u_lenght_field" placeholder="Lenght">
+                            {% else %}
+                                <input type="number" value="{{ item }}" class="u_lenght_field" placeholder="Lenght" readonly>
+                            {% endif %}
+
+                        {% endif %}
+
+                    </td>
+                    {% endfor %}
+                    {% endfor %}
+
+                    <td>
+                        <input type="number" value="" class="espessura_disco_field" placeholder="Espessura do disco">
+                    </td>
+                    <td>
+                        <input type="number" value="" class="comprimento_field" placeholder="Comprimento da barra">
+                    </td>
+                    <td>
+                        <input type="number" value="" class="qtd_field" readonly>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    
     {% elif error_message %}
         <p>{{ error_message }}</p>
     {% endif %}
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            function calculateQtdPieces() {
-                const materialRows = document.querySelectorAll('.material-table tbody tr');
-    
-                materialRows.forEach(row => {
-                    // Obtém o texto do campo Design e remove espaços em branco ao redor
-                    const designField = row.querySelector('.design_field')?.textContent.trim() || '';
-    
-                    // Verifica se o texto contém a palavra 'CORTE'
-                    const isCorte = designField.toUpperCase().includes('CORTE');
-    
-                    const falta = parseFloat(row.querySelector('.falta_field')?.textContent || 0);
-                    const uLenght = parseFloat(row.querySelector('.u_lenght_field')?.value || 0);
-                    const espessuraDiscoField = row.querySelector('.espessura_disco_field');
-                    const comprimento = parseFloat(row.querySelector('.comprimento_field')?.value || 1);
-    
-                    if (isCorte) {
-                        // Preenche Espessura Disco com 5 e desabilita o campo
-                        espessuraDiscoField.value = 5;
-                        espessuraDiscoField.setAttribute('readonly', true);
-                    } else {
-                        // Caso contrário, garante que o campo Espessura Disco possa ser editado
-                        espessuraDiscoField.removeAttribute('readonly');
-                    }
-    
-                    // Calcula a quantidade de peças
-                    const espessuraDisco = parseFloat(espessuraDiscoField?.value || 0);
-                    const qtdPeças = ((uLenght + espessuraDisco) * falta) / comprimento;
-    
-                    // Atualiza o campo qtd_field
-                    const qtdField = row.querySelector('.qtd_field');
-                    qtdField.value = qtdPeças.toFixed(2);
-                });
+  document.addEventListener("DOMContentLoaded", function() {
+    function calculateQtdPieces() {
+        const rows = document.querySelectorAll('tbody tr'); // Corrige o seletor para pegar as linhas da tabela principal
+
+        rows.forEach(row => {
+            // Obtém o texto do campo Design e remove espaços em branco ao redor
+            const designField = row.querySelector('.design_field')?.textContent.trim() || '';
+
+            // Verifica se o texto contém a palavra 'CORTE'
+            const isCorte = designField.toUpperCase().includes('CORTE');
+
+            const falta = parseFloat(row.querySelector('.falta_field')?.textContent || 0);
+            const uLenght = parseFloat(row.querySelector('.u_lenght_field')?.value || 0);
+            const espessuraDiscoField = row.querySelector('.espessura_disco_field');
+            const comprimento = parseFloat(row.querySelector('.comprimento_field')?.value || 1);
+
+            if (isCorte) {
+                // Preenche Espessura Disco com 5 e desabilita o campo
+                espessuraDiscoField.value = 5;
+                espessuraDiscoField.setAttribute('readonly', true);
+            } else {
+                // Caso contrário, garante que o campo Espessura Disco possa ser editado
+                espessuraDiscoField.removeAttribute('readonly');
             }
-    
-            const espessuraDiscoFields = document.querySelectorAll('.espessura_disco_field');
-            const comprimentoFields = document.querySelectorAll('.comprimento_field');
-            const uLenghtFields = document.querySelectorAll('.u_lenght_field');
-    
-            // Adiciona eventos de input para recalcular quando o valor mudar
-            espessuraDiscoFields.forEach(field => field.addEventListener('input', calculateQtdPieces));
-            comprimentoFields.forEach(field => field.addEventListener('input', calculateQtdPieces));
-            uLenghtFields.forEach(field => field.addEventListener('input', calculateQtdPieces));
-    
-            // Executa o cálculo inicial
-            calculateQtdPieces();
+
+            // Calcula a quantidade de peças
+            const espessuraDisco = parseFloat(espessuraDiscoField?.value || 0);
+            const qtdPeças = ((uLenght + espessuraDisco) * falta) / comprimento;
+
+            // Atualiza o campo qtd_field
+            const qtdField = row.querySelector('.qtd_field');
+            qtdField.value = qtdPeças.toFixed(2);
         });
+    }
+
+    const espessuraDiscoFields = document.querySelectorAll('.espessura_disco_field');
+    const comprimentoFields = document.querySelectorAll('.comprimento_field');
+    const uLenghtFields = document.querySelectorAll('.u_lenght_field');
+
+    // Adiciona eventos de input para recalcular quando o valor mudar
+    espessuraDiscoFields.forEach(field => field.addEventListener('input', calculateQtdPieces));
+    comprimentoFields.forEach(field => field.addEventListener('input', calculateQtdPieces));
+    uLenghtFields.forEach(field => field.addEventListener('input', calculateQtdPieces));
+
+    // Executa o cálculo inicial
+    calculateQtdPieces();
+});
+
     </script>
     
     

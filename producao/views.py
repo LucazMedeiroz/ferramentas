@@ -194,7 +194,7 @@ def logout(request):
 '''
 
 from django.shortcuts import render
-from .utils import get_of_details, get_material
+from .utils import get_of_details, get_material, get_componente
 
 from django.shortcuts import render
 from .utils import get_of_details, get_material
@@ -203,6 +203,7 @@ def material(request):
     results = []
     error_message = None
     falta_value = None  # Inicialize falta_value com None para garantir que sempre tenha um valor
+    of = None
 
     if request.method == 'POST':
         of = request.POST.get('of')
@@ -212,7 +213,17 @@ def material(request):
                 for row in of_details:
                     obrano_fo = row[0]
                     materials = get_material(obrano_fo)
-                    results.append((row, materials))
+                    refSemTrim = row[3]  # ref está no índice 4
+                    #trim da ref
+                    ref = refSemTrim.strip()
+                    print('ref')
+                    print(ref)
+                    componente = get_componente(ref)
+                    print(componente)
+
+
+                    # Adicione row, componente e materials em uma única tupla
+                    results.append((row, componente, materials))
                 
                 # Defina falta_value usando o valor da primeira linha de of_details
                 falta_value = of_details[0][5]  # A coluna "FALTA" está no índice 5
@@ -222,4 +233,5 @@ def material(request):
             error_message = 'Por favor, insira uma OF válida.'
 
     # Passe falta_value ao template mesmo que não haja resultados
-    return render(request, 'producao/material.html', {'results': results, 'error_message': error_message, 'falta_value': falta_value, 'page_title':'Material'})
+    return render(request, 'producao/material.html', {'results': results, 'error_message': error_message, 'falta_value': falta_value, 'page_title': 'Material', 'of':of})
+

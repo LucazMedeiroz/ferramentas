@@ -19,40 +19,48 @@
             margin-left: auto;
             margin-right: auto;
         }
+
         .hero-section {
             position: relative;
             color: white;
-            padding: 50px 0;
+            padding: 0; /* Removendo o padding para evitar aumentar a área da seção */
             text-align: center;
             overflow: hidden;
-
-
+            height:auto; /* Ajustando a altura da seção */
+            max-height: 200px;
+            width: 100%;
         }
+
         .hero-section video {
             position: absolute;
             top: 50%;
             left: 50%;
-            min-width: 100%;
-            min-height: 100%;
-            width: auto;
+            min-width: auto;
+            min-height: auto;
+            width: 100%;
             height: auto;
             z-index: 0;
             transform: translate(-50%, -50%);
             object-fit: cover;
+            max-height: 300px; /* Ajuste conforme a altura desejada */
         }
+
         .hero-section .content {
             position: relative;
             z-index: 1;
             background-color: rgba(49, 49, 49, 0.5); /* Cor cinza com 50% de transparência */
+            max-width: 100%; /* Ajustar a largura máxima para caber na seção */
+            max-height: 300px; /* Ajustar a altura da div content para corresponder ao vídeo */
+            padding: 20px; /* Reduzir o padding para evitar que o conteúdo ocupe mais espaço */
+            margin: 0 auto; /* Centralizar o conteúdo */
+            box-sizing: border-box; /* Garantir que o padding não aumente a altura total */
             width: 100%;
-            height: 100%;
-            padding: 50px;
-
         }
+
         .hero-section .content h1,
         .hero-section .content p,
         .hero-section .content a {
-            margin: 20px 0;
+            margin: 10px 0; /* Reduzir o espaço entre os elementos */
         }
         .features-section {
             background-color: #EBEBEB;
@@ -205,6 +213,8 @@ html, body, .wrapper, .content {
                     <source src="{% static 'home/videos/video.mp4' %}" type="video/mp4">
                     Seu navegador não suporta a tag de vídeo.
                     </video>
+                    <div class="video-overlay"></div> <!-- Filtro sobre o vídeo -->
+
                     <div class="content highlight">
                         <h1>Bem-vindo à página de ferramentas da Triangles!</h1>
                         <p>Explore nossas soluções e descubra como podemos ajudar a otimizar seus projetos e tarefas diárias.</p>
