@@ -259,51 +259,50 @@ def validadorGeral(request):
         return render(request, 'validadores/validadorGeral.html', {'dados': [], 'page_title':'Validador de Gama'})
     
 
-
 @user_in_groups(['validadores', 'it'])
 @login_required
 def validarOF(request):
     if request.method == 'POST':
         of = request.POST.get('of')
+        corrigir = request.POST.get('corrigir')  # Recebe a confirmação
         dados = queryValidadorOF(of)
         fechadas = True
-        
-
 
         erros = []
         erro = ''
 
-
-        print(dados)
-
+        # Valida os dados e coleta os erros
         for row in dados:
-            if row[9] == None or row[10] == None:
+            if row[9] is None or row[10] is None:
                 fechadas = False
-                erros.append(f"campos 'initial' e 'final' devem ser preenchidos")
+                erros.append("Campos 'initial' e 'final' devem ser preenchidos")
 
-        
         for row in dados:
             if row[0] == 1 or row[1] == 1:
-                if fechadas == True:
-                    erro = 'campos "play" e "stop" devem ser 0' 
+                if fechadas:
+                    erro = 'Campos "play" e "stop" devem ser 0'
                     if erro not in erros:
                         erros.append(erro)
-                        updateOf(of)
- 
 
-        print(erros)
         utilizador = request.user
+
+        # Armazena os erros no banco de dados para registro
         if erros:
             for erro in erros:
-                Mensagem.objects.create(ref=of, mensagem=erro, user = utilizador)
+                Mensagem.objects.create(ref=of, mensagem=erro, user=utilizador)
 
-        if erros:
-            return render(request, 'validadores/validadorOF.html', {'dados': dados, 'erros': erros, 'of': of, 'page_title':'Validador OF '})
-        else:
-            return render(request, 'validadores/validadorOF.html', {'dados': dados, 'of': of, 'page_title':'Validador OF '})
+        # Se o usuário confirmar a correção e houver erros, os erros serão corrigidos
+        if corrigir and erros:
+            updateOf(of)
+
+        # Renderiza a página com os erros e o botão de correção
+        return render(request, 'validadores/validadorOF.html', {
+            'dados': dados, 'erros': erros, 'of': of, 'corrigir': corrigir, 'page_title': 'Validador OF'
+        })
     else:
         dados = []
-        return render(request, 'validadores/validadorOF.html', {'dados': dados, 'page_title':'Validador OF'})
+        return render(request, 'validadores/validadorOF.html', {'dados': dados, 'page_title': 'Validador OF'})
+
     
 
 from django.core.paginator import Paginator
