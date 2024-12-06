@@ -34,9 +34,6 @@ def encomendasAbertas(request):
     
     data = get_clientes_marcas_modelos()
 
-
-
-
     clientes = {item['cliente'] for item in data}
     #ordernar clientes
     clientes = sorted(clientes)

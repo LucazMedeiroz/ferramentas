@@ -1,0 +1,426 @@
+{% extends 'home/base.html' %}
+
+{% block title %}Gestão de OF's{% endblock %}
+
+{% block content %}
+
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
+
+
+<style>
+    .table th, .table td {
+        padding: 0.5rem;
+    }
+
+    .subof-table {
+        width: 100%;
+    }
+
+    .subof-table th {
+        font-size: 12px;
+    }
+
+    .subof-table td {
+        font-size: 12px;
+    }
+
+    .container-per {
+        margin-top: 20px;
+        margin-bottom: 20px;
+        margin-left: 20px;
+        margin-right: 20px;
+    }
+
+    .striped-even {
+        background-color: #f9f9f9; /* Cor de fundo para linhas pares */
+    }
+    
+    .striped-odd {
+        background-color: #ffffff; /* Cor de fundo para linhas ímpares */
+    }
+
+    .progress-bar {
+        font-weight: bold;  /* Torna o texto mais visível */
+        color: white;  /* Cor do texto dentro da barra */
+        text-align: center;  /* Centraliza o texto */
+        line-height: 30px;  /* Alinha o texto verticalmente */
+    }
+
+    th {
+        font-family: 'Montserratbold', sans-serif;
+        font-weight: 700;  /* Garante que o peso 700 (Bold) seja usado */
+        font-size: 16px;  /* Tamanho da fonte */
+    }
+    
+    
+
+
+
+</style>
+
+<div class="container-per">
+<div class="row">
+    <div class="col-md-12">
+        <div class="content margin-box">
+            <div class="title">
+                <span>Gestão de OF's</span>
+            </div>
+            <div class="row">
+                <form method="get" class="form">
+                    <div class="row">
+                        <div class="col-md-1">
+                            <label for="nave">Nave:</label>
+                            <select id="nave" name="nave" class="form-control">
+                                <option value="">----</option>
+                                {% for nave in naves %}
+                                <option value="{{ nave }}" {% if filtros.nave|default:'' == nave %}selected{% endif %}>{{ nave }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                
+                        <div class="col-md-2">
+                            <label for="marca">Marca:</label>
+                            <select name="marca" id="marca" class="form-control">
+                                <option value="">----</option>
+                                {% for marca in marcas %}
+                                <option value="{{ marca }}" {% if filtros.marca == marca %}selected{% endif %}>{{ marca }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                
+                        <div class="col-md-2">
+                            <label for="modelo">Modelo:</label>
+                            <select name="modelo" id="modelo" class="form-control">
+                                <option value="">----</option>
+                                {% for modelo in modelos %}
+                                <option value="{{ modelo }}" {% if filtros.modelo == modelo %}selected{% endif %}>{{ modelo }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                
+                        <div class="col-md-2">
+                            <label for="tamanho">Tamanho:</label>
+                            <select name="tamanho" id="tamanho" class="form-control">
+                                <option value="">----</option>
+                                {% for tamanho in tamanhos %}
+                                <option value="{{ tamanho }}" {% if filtros.tamanho == tamanho %}selected{% endif %}>{{ tamanho }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                
+                        <div class="col-md-2">
+                            <label for="data_inicio">Data de Início:</label>
+                            <input type="date" name="data_inicio" class="form-control" value="{{ filtros.data_inicio }}">
+                        </div>
+                
+                        <div class="col-md-2">
+                            <label for="data_fim">Data de Fim:</label>
+                            <input type="date" name="data_fim" class="form-control" value="{{ filtros.data_fim }}">
+                        </div>
+
+                        <div class="col-md-1">
+                            <button type="submit" class="btn btn-primary form-control">Filtrar</button>
+                        </div>
+                    </div>
+
+
+                
+       
+                </form>
+
+                <br>
+
+            </div>
+            <br>
+
+            <div class="row">
+
+                <!--espaço para que a barra de pesquisa vai para a lateral-->
+                <div class="col-md-10">
+                </div>
+
+
+                <div class="col-md-2">
+                    <label for="search">Filtrar:</label>
+                    <input type="search" class="form-control input-sm" placeholder="" aria-controls="DataTables_Table_0" id="pesquisa">
+                </div>
+
+                
+
+            </div>
+            <br>
+
+
+
+                {% if data %}
+
+                
+
+                <ul class="nav nav-tabs" id="myTab" role="tablist" style="width:100%">
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Tabela de OF's</a>
+                    </li>
+                </ul>
+
+                <div class="col-12 tab-content" id="myTabContent" style="overflow:auto">
+                    <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+                    <div class="table-responsive">
+                        <table class="table table-common subof-table table-striped">
+                            <thead> 
+                                <tr class="header-row">
+                                    <th>Marca</th>
+                                    <th>Modelo</th>
+                                    <th>Tamanho</th>
+                                    <th>Qt</th>
+                                    <th>OF Mãe</th>
+                                    <th>Obs</th>
+                                    <th>Entrega</th>
+                                    <th></th>
+                                    <th>SubOF</th>
+                                    <th>Secção</th>
+                                    <th>Referência</th>
+                                    <th>Descrição</th>
+                                    <th>Componente</th>
+                                    <th>Pedido</th>
+                                    <th>Produzida</th>
+                                    <th>Rejeitada</th>
+                                    <th>Processo</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for of_data in data.object_list %}
+                                {% with of_data.SubOFs|length as subof_length %}
+                                <!-- Linha da OF Mãe -->
+                                <tr id="mae-{{ of_data.ID }}" class="of-mae-row {% if forloop.counter0 is even %}striped-even{% else %}striped-odd{% endif %}">
+                                    <td rowspan="{{ subof_length|add:1 }}">{{ of_data.MARCA }}</td>
+                                    <td rowspan="{{ subof_length|add:1 }}">{{ of_data.MODELO }}</td>
+                                    <td rowspan="{{ subof_length|add:1 }}">{{ of_data.Size }}</td>
+                                    <td rowspan="{{ subof_length|add:1 }}">{{ of_data.Qt }}</td>
+                                    <td rowspan="{{ subof_length|add:1 }}"><a href="http://triprod:9001/show-fo/{{ of_data.ID }}">{{ of_data.OFMae }}</a></td>
+                                    <td rowspan="{{ subof_length|add:1 }}">{{ of_data.Obs }}</td>
+                                    <td rowspan="{{ subof_length|add:1 }}">{{ of_data.Entrega }}</td>
+                                    <td rowspan="{{ subof_length|add:1 }}">{{ of_data.Descricao }}</td>
+                                </tr>
+                                <!-- Linhas das SubOFs -->
+                                {% for subof in of_data.SubOFs %}
+                                <tr id="subof-{{ subof.ID }}" class="subof-mae-{{ of_data.id }} {% if forloop.parentloop.counter0 is even %}striped-even{% else %}striped-odd{% endif %}">
+                                    <td><a href="http://triprod:9001/show-fo/{{ subof.ID }}">{{ subof.SubOF }}</a></td>
+                                    <td>{{ subof.Seccao }}</td>
+                                    <td>{{ subof.Ref }}</td>
+                                    <td>{{ subof.Descricao }}</td>
+                                    <td>{{ subof.COMPONENTE }}</td>
+                                    <td>{{ subof.Pedido }}</td>
+                                    <td>{{ subof.Produzida|floatformat:0 }}</td>
+                                    <td>{{ subof.Rejeitada|default:0 }}</td>
+                                    <td>
+                                        <div class="progress">
+                                            <div class="progress-bar bg-success" role="progressbar" 
+                                                 style="width: {{ subof.Processo }}%;" aria-valuenow="{{ subof.Processo }}" 
+                                                 aria-valuemin="0" aria-valuemax="100">
+                                                {{ subof.Processo }}%
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                <!-- Separador -->
+                                <tr>
+                                    <td colspan="16" class="border-top"></td>
+                                </tr>
+                                {% endwith %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        
+                    </div>
+                    </div>
+                </div>
+
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="pagination-container">
+    <nav aria-label="Page navigation">
+        <ul class="pagination">
+            {% if data.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page=1{% for key, value in filtros.items %}{% if value %}&{{ key }}={{ value }}{% endif %}{% endfor %}" aria-label="First">
+                    <span aria-hidden="true">&laquo;&laquo;</span>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ data.previous_page_number }}{% for key, value in filtros.items %}{% if value %}&{{ key }}={{ value }}{% endif %}{% endfor %}" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            {% endif %}
+            {% for num in data.paginator.page_range %}
+            <li class="page-item {% if num == data.number %}active{% endif %}">
+                <a class="page-link" href="?page={{ num }}{% for key, value in filtros.items %}{% if value %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ num }}</a>
+            </li>
+            {% endfor %}
+            {% if data.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ data.next_page_number }}{% for key, value in filtros.items %}{% if value %}&{{ key }}={{ value }}{% endif %}{% endfor %}" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ data.paginator.num_pages }}{% for key, value in filtros.items %}{% if value %}&{{ key }}={{ value }}{% endif %}{% endfor %}" aria-label="Last">
+                    <span aria-hidden="true">&raquo;&raquo;</span>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+</div>
+
+
+
+</div>
+
+<script>
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        const naveSelect = document.getElementById('nave');
+        const marcaSelect = document.getElementById('marca');
+        const modeloSelect = document.getElementById('modelo');
+        const tamanhoSelect = document.getElementById('tamanho');
+        
+        // Quando a nave for selecionada
+        naveSelect.addEventListener('change', function() {
+            updateMarcas();
+        });
+    
+        // Quando a marca for selecionada
+        marcaSelect.addEventListener('change', function() {
+            updateModelos();
+        });
+    
+        // Quando o modelo for selecionado
+        modeloSelect.addEventListener('change', function() {
+            updateTamanhos();
+        });
+    
+        function updateMarcas() {
+            let nave = naveSelect.value;
+            fetch(`/gestao-of/get-marcas/?nave=${nave}`)  // Passando o parâmetro nave
+                .then(response => response.json())
+                .then(data => {
+                    marcaSelect.innerHTML = '<option value="">Selecione uma marca</option>';
+                    data.marcas.forEach(function(marca) {
+                        let option = document.createElement('option');
+                        option.value = marca;
+                        option.textContent = marca;
+                        marcaSelect.appendChild(option);
+                    });
+                    marcaSelect.disabled = !nave;
+                });
+        }
+    
+        function updateModelos() {
+            let marca = marcaSelect.value;
+            fetch(`/gestao-of/get-modelos/?marca=${marca}`)  // Passando o parâmetro marca
+                .then(response => response.json())
+                .then(data => {
+                    modeloSelect.innerHTML = '<option value="">Selecione um modelo</option>';
+                    data.modelos.forEach(function(modelo) {
+                        let option = document.createElement('option');
+                        option.value = modelo;
+                        option.textContent = modelo;
+                        modeloSelect.appendChild(option);
+                    });
+                    modeloSelect.disabled = !marca;
+                });
+        }
+    
+        function updateTamanhos() {
+            let modelo = modeloSelect.value;
+            fetch(`/gestao-of/get-tamanhos/?modelo=${modelo}`)  // Passando o parâmetro modelo
+                .then(response => response.json())
+                .then(data => {
+                    tamanhoSelect.innerHTML = '<option value="">Selecione um tamanho</option>';
+                    data.tamanhos.forEach(function(tamanho) {
+                        let option = document.createElement('option');
+                        option.value = tamanho;
+                        option.textContent = tamanho;
+                        tamanhoSelect.appendChild(option);
+                    });
+                    tamanhoSelect.disabled = !modelo;
+                });
+        }
+    
+        // Inicializar as opções ao carregar a página
+        updateMarcas();
+        updateModelos();
+        updateTamanhos();
+    });
+
+
+    /**Ao inserir algo na barra de pesquisa, o dom esculta, e corre todas as linhas da tabela para verificar se alguma celula tem esse conteudo e filtr. Caso a linha seja da parte das subofs, dee aparecer a linha mae onde tem a ofmae*/
+    document.addEventListener('DOMContentLoaded', function() {
+        const pesquisaInput = document.getElementById('pesquisa');
+        
+        // Função que aplica o filtro
+        function aplicarFiltro() {
+            let filtro = pesquisaInput.value.toLowerCase();
+            let linhas = document.querySelectorAll('.subof-table tbody tr');
+            let ofMaesVisiveis = new Set(); // Para armazenar as linhas de OF Mãe visíveis
+
+            linhas.forEach(function(linha) {
+                let celulas = linha.querySelectorAll('td');
+                let linhaVisivel = false;
+    
+                // Verifica se o filtro está presente em alguma célula
+                celulas.forEach(function(celula) {
+                    if (celula.textContent.toLowerCase().includes(filtro)) {
+                        linhaVisivel = true;
+                    }
+                });
+    
+                // Se encontrar uma correspondência, torna a linha visível
+                if (linhaVisivel) {
+                    linha.style.display = ''; // Exibe a linha
+                    // Se for uma linha de SubOF, mostra a linha da OF Mãe
+                    if (linha.parentNode.querySelector('.of-mae-row')) {
+                        let ofMaeRow = linha.parentNode.querySelector('.of-mae-row');
+                        ofMaeRow.style.display = ''; // Exibe a OF Mãe
+                        ofMaesVisiveis.add(ofMaeRow); // Marca a OF Mãe como visível
+                    }
+                } else {
+                    linha.style.display = 'none'; // Oculta a linha
+                }
+            });
+    
+            // Ocultar as linhas de OF Mãe que não têm SubOFs visíveis associadas
+            document.querySelectorAll('.of-mae-row').forEach(function(ofMaeRow) {
+                if (!ofMaesVisiveis.has(ofMaeRow)) {
+                    ofMaeRow.style.display = 'none';
+                }
+            });
+        }
+    
+        // Aplica o filtro ao digitar na barra de pesquisa
+        pesquisaInput.addEventListener('input', aplicarFiltro);
+    
+        // Exibe todas as linhas quando a página é carregada pela primeira vez
+        aplicarFiltro();
+    });
+    
+    
+</script>
+
+
+
+
+{% endblock %}
+
+{% block styles %}
+
+{% endblock %}
+
+{% block scripts %}
+{% endblock %}

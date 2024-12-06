@@ -17,14 +17,28 @@ def dados_funcinario(numero):
     conn = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};SERVER=192.168.120.9;DATABASE=PHCTRI;UID=estagio;PWD=3stAg10..')
     cursor = conn.cursor()
     query = f"""
-    select SmartTime.dbo.Funcionarios.nome, SmartTime.dbo.Funcionarios.Numero , u_operators_alb.email, qrcode,SmartTime.dbo.Funcionarios.Fotografia,SmartTime.dbo.Departamentos.Descricao,Convert(varchar(10), (dbo.pe.dataadm),120) as dataadmissao 
-from SmartTime.dbo.Funcionarios 
-left join dbo.u_operators_alb  on u_operators_alb.numphc = SmartTime.dbo.Funcionarios.Numero
-left join dbo.pe on SmartTime.dbo.Funcionarios.Numero = dbo.pe.no
-left join SmartTime.dbo.Departamentos on SmartTime.dbo.Departamentos.IDDepartamento=SmartTime.dbo.Funcionarios.IDDepartamento
-where SmartTime.dbo.Funcionarios.Activo=1
-and SmartTime.dbo.Funcionarios.Numero = {numero} 
-ORDER BY SmartTime.dbo.Funcionarios.Numero
+   SELECT 
+    SmartTime.dbo.Funcionarios.nome, 
+    SmartTime.dbo.Funcionarios.Numero, 
+    u_operators_alb.email, 
+    qrcode, 
+    SmartTime.dbo.Funcionarios.Fotografia, 
+    SmartTime.dbo.Departamentos.Descricao, 
+    CONVERT(VARCHAR(10), SmartTime.dbo.Funcionarios.DataAdmissao, 120) AS dataadmissao
+FROM 
+    SmartTime.dbo.Funcionarios 
+LEFT JOIN 
+    dbo.u_operators_alb ON u_operators_alb.numphc = SmartTime.dbo.Funcionarios.Numero
+LEFT JOIN 
+    dbo.pe ON SmartTime.dbo.Funcionarios.Numero = dbo.pe.no
+LEFT JOIN 
+    SmartTime.dbo.Departamentos ON SmartTime.dbo.Departamentos.IDDepartamento = SmartTime.dbo.Funcionarios.IDDepartamento
+WHERE 
+    SmartTime.dbo.Funcionarios.Activo = 1
+    AND SmartTime.dbo.Funcionarios.Numero = {numero}
+ORDER BY 
+    SmartTime.dbo.Funcionarios.Numero
+
 
                 """
     

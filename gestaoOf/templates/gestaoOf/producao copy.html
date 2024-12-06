@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Consulta de Produção</title>
+</head>
+<body>
+    <h1>Consulta de Produção</h1>
+
+    <!-- Formulário para filtro -->
+    <form method="post">
+        {% csrf_token %}
+        <label for="marca">Marca:</label>
+        <select name="marca" id="marca">
+            <option value="">Todas</option>
+            {% for marca in marcas %}
+                <option value="{{ marca }}" {% if marca == filtro_marca %}selected{% endif %}>{{ marca }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="modelo">Modelo:</label>
+        <select name="modelo" id="modelo">
+            <option value="">Todos</option>
+            {% for modelo in modelos %}
+                <option value="{{ modelo }}" {% if modelo == filtro_modelo %}selected{% endif %}>{{ modelo }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="tamanho">Tamanho:</label>
+        <select name="tamanho" id="tamanho">
+            <option value="">Todos</option>
+            {% for tamanho in tamanhos %}
+                <option value="{{ tamanho }}" {% if tamanho == filtro_tamanho %}selected{% endif %}>{{ tamanho }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="data_inicio">Data Início:</label>
+        <input type="date" name="data_inicio" id="data_inicio" value="{{ data_inicio }}">
+
+        <label for="data_fim">Data Fim:</label>
+        <input type="date" name="data_fim" id="data_fim" value="{{ data_fim }}">
+
+        <button type="submit">Filtrar</button>
+    </form>
+
+    <hr>
+
+    <!-- Tabela para exibir os dados -->
+    <h2>Resultados</h2>
+    {% if dados %}
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Marca</th>
+                    <th>Modelo</th>
+                    <th>Tamanho</th>
+                    <th>Quantidade Real</th>
+                    <th>OF Mãe</th>
+                    <th>Sequencial</th>
+                    <th>Data de Entrega</th>
+                    <th>Componente</th>
+                    <th>Sub of</th>
+                    <th>Secção</th>
+                    <th>Design</th>
+                    <th>Ref</th>
+                    <th>Quantidade Produzida</th>
+                    <th>Quantidade Rejeitada</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for dado in dados %}
+                    <tr>
+                        <td>{{ dado.marca }}</td>
+                        <td>{{ dado.modelo }}</td>
+                        <td>{{ dado.tamanho }}</td>
+                        <td>{{ dado.qtt_real }}</td>
+                        <td>{{ dado.ofparent }}</td>
+                        <td>{{ dado.sequencial }}</td>
+                        <td>{{ dado.data_entrega }}</td>
+                        <td>{{ dado.componente }}</td>
+                        <td>{{ dado.name_subof }}</td>
+                        <td>{{ dado.design }}</td>
+                        <td>{{ dado.ref }}</td>
+                        <td>{{ dado.qtt_produzida }}</td>
+                        <td>{{ dado.qtt_rejeitada }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Nenhum resultado encontrado.</p>
+    {% endif %}
+</body>
+</html>

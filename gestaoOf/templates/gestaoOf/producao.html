@@ -1,0 +1,608 @@
+{% extends 'home/base.html' %}
+
+{% block title %}Gestão de OF's{% endblock %}
+
+{% block content %}
+
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
+
+
+<style>
+    .table th, .table td {
+        padding: 0.5rem;
+    }
+
+    .subof-table {
+        width: 100%;
+    }
+
+    .subof-table th {
+        font-size: 12px;
+    }
+
+    .subof-table td {
+        font-size: 12px;
+    }
+
+    .container-per {
+        margin-top: 20px;
+        margin-bottom: 20px;
+        margin-left: 20px;
+        margin-right: 20px;
+    }
+
+    .striped-even {
+        background-color: #949494; /* Cor de fundo para linhas pares */
+    }
+    
+    .striped-odd {
+        background-color: #ffffff; /* Cor de fundo para linhas ímpares */
+    }
+
+    .progress-bar {
+        font-weight: bold;  /* Torna o texto mais visível */
+        color: white;  /* Cor do texto dentro da barra */
+        text-align: center;  /* Centraliza o texto */
+        line-height: 30px;  /* Alinha o texto verticalmente */
+    }
+
+    th {
+        font-family: 'Montserratbold', sans-serif;
+        font-weight: 700;  /* Garante que o peso 700 (Bold) seja usado */
+        font-size: 16px;  /* Tamanho da fonte */
+    }
+
+    /*Efeito hover ao passar em um celula*/
+    .table th:hover, .table td:hover {
+        background-color: #f9f9f9;
+
+    }
+
+    body {
+        font-family: 'Montserratlight', sans-serif;
+    }
+
+    form {
+        color: #83819f;
+        font-weight: 350;
+        font-size: 12px;
+
+    }
+
+    label {
+        color: #83819f;
+    }
+
+    th {
+        font-weight: 700;
+        /**colo black*/
+        color: #000000;
+        font-size: 12px;
+
+    }
+
+    .separator-border {
+        border-top: 2px solid black;  /* Borda preta de 2px */
+        border-bottom: 2px solid black; /* Borda inferior preta de 2px */
+    }
+    
+
+    .btn-custom {
+        background-color: #6c757d;  /* Cinza suave */
+        color: white;  /* Texto branco */
+        border: none;
+        border-radius: 5px;  /* Bordas arredondadas */
+        padding: 8px 16px;  /* Um pouco de espaço interno */
+        font-size: 14px;  /* Fonte ligeiramente menor */
+        transition: background-color 0.3s ease;  /* Efeito suave na mudança de cor */
+    }
+
+    .btn-custom:hover {
+        background-color: #5a6268;  /* Tom de cinza mais escuro ao passar o mouse */
+        cursor: pointer;
+    }
+
+    .pagination {
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    .pagination span {
+        margin: 0 10px;
+        font-size: 16px;
+        font-weight: bold;
+    }
+
+        /* Estilos para links vermelhos */
+        .table-common a {
+            color: red; /* Cor vermelha para o texto do link */
+            text-decoration: none; /* Remover sublinhado */
+        }
+    
+        /* Para quando o link for passado por cima (hover) */
+        .table-common a:hover {
+            color: darkred; /* Cor vermelha mais escura ao passar o mouse sobre o link */
+            text-decoration: underline; /* Adicionar sublinhado quando o mouse estiver sobre o link */
+        }
+
+        .entrega-cell {
+            border-right: 2px solid black;
+        }
+
+
+</style>
+
+
+<div class="container-per">
+<div class="row">
+    <div class="col-md-12">
+        <div class="content margin-box">
+            <div class="title">
+                <span>Gestão de OF's</span>
+            </div>
+            <div class="row">
+                <form method="get" class="form">
+                    <div class="row">
+                        <div class="col-md-1">
+                            <label for="nave">Nave:</label>
+                            <select id="nave" name="nave" class="form-control">
+                                <option value="">----</option>
+                                {% for nave in naves %}
+                                <option value="{{ nave }}" {% if filtros.nave|default:'' == nave %}selected{% endif %}>{{ nave }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-2">
+                            <label for="oferta_mae">OF Mãe:</label>
+                            <select name="of_mae" id="of_mae" class="form-control">
+                                <option value="">----</option>
+                                {% for item in of_mae_list %}  <!-- Corrigido para usar of_mae_list -->
+                                <option value="{{ item }}" {% if filtros.of_mae == item %}selected{% endif %}>{{ item }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+
+                
+                        <div class="col-md-2">
+                            <label for="marca">Marca:</label>
+                            <select name="marca" id="marca" class="form-control">
+                                <option value="">----</option>
+                                {% for marca in marcas %}
+                                <option value="{{ marca }}" {% if filtros.marca == marca %}selected{% endif %}>{{ marca }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                
+                        <div class="col-md-2">
+                            <label for="modelo">Modelo:</label>
+                            <select name="modelo" id="modelo" class="form-control">
+                                <option value="">----</option>
+                                {% for modelo in modelos %}
+                                <option value="{{ modelo }}" {% if filtros.modelo == modelo %}selected{% endif %}>{{ modelo }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                
+                        <div class="col-md-2">
+                            <label for="tamanho">Tamanho:</label>
+                            <select name="tamanho" id="tamanho" class="form-control">
+                                <option value="">----</option>
+                                {% for tamanho in tamanhos %}
+                                <option value="{{ tamanho }}" {% if filtros.tamanho == tamanho %}selected{% endif %}>{{ tamanho }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row mt-3">
+                        <div class="col-md-1 mt-2">
+                            <br>
+                            <span>Data de Entrega</span>
+                        </div>
+                        
+
+
+                
+                        <div class="col-md-2">
+                            <label for="data_inicio">De:</label>
+                            <input type="date" name="data_inicio" class="form-control" value="{{ filtros.data_inicio }}">
+                        </div>
+                
+                        <div class="col-md-2">
+                            <label for="data_fim">Até:</label>
+                            <input type="date" name="data_fim" class="form-control" value="{{ filtros.data_fim }}">
+                        </div>
+
+
+
+                        <div class="col-md-1">
+                            <br>
+                            <button type="submit" class="btn btn-outline-danger form-control">Filtrar</button>
+                        </div>
+                    </div>
+
+
+                
+       
+                </form>
+
+                <br>
+
+            </div>
+            <br>
+
+            <div class="row">
+
+                <!--espaço para que a barra de pesquisa vai para a lateral-->
+                <div class="col-md-10">
+                </div>
+
+
+                    <div class="col-md-2">
+                        <label for="search-subof">Filtrar:  <input type="search" class="form-control input-sm" placeholder="" id="search-subof"></label>
+                       
+                    </div>
+                
+
+                
+
+            </div>
+            <br>
+
+
+
+                {% if data %}
+
+                
+
+                <ul class="nav nav-tabs" id="myTab" role="tablist" style="width:100%">
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Tabela de OF's</a>
+                    </li>
+                </ul>
+
+                <div class="col-12 tab-content" id="myTabContent" style="overflow:auto">
+                    <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+                    <div class="table-responsive">
+                        <table class="table table-common subof-table table-striped table-Dark">
+                            <thead> 
+                                <tr class="header-row">
+                                    <th>Marca</th>
+                                    <th>Modelo</th>
+                                    <th>Tamanho</th>
+                                    <th>Qt</th>
+                                    <th>OF Mãe</th>
+                                    <th>Obs</th>
+                                    <th>Entrega</th>
+                                    <th></th>
+                                    <th>SubOF</th>
+                                    <th>Secção</th>
+                                    <th>Referência</th>
+                                    <th>Descrição</th>
+                                    <th>Componente</th>
+                                    <th>Pedido</th>
+                                    <th>Produzida</th>
+                                    <th>Rejeitada</th>
+                                    <th>Processo</th>
+                                </tr>
+                            </thead>
+                            <tbody id="data-table-body">
+                                {% for of_data in data %}
+                                {% with of_data.SubOFs|length as subof_length %}
+                                <!-- Linha da OF Mãe -->
+                                <tr id="mae-{{ of_data.ID }}" class="of-mae-row {% if forloop.counter0 is even %}striped-even{% else %}striped-odd{% endif %}">
+                                    <td rowspan="{{ subof_length|add:1 }}">{{ of_data.MARCA }}</td>
+                                    <td rowspan="{{ subof_length|add:1 }}">{{ of_data.MODELO }}</td>
+                                    <td rowspan="{{ subof_length|add:1 }}">{{ of_data.Size }}</td>
+                                    <td rowspan="{{ subof_length|add:1 }}">{{ of_data.Qt }}</td>
+                                    <td rowspan="{{ subof_length|add:1 }}"><a href="http://triprod:9001/show-fo/{{ of_data.ID }}">{{ of_data.OFMae }}</a></td>
+                                    <td rowspan="{{ subof_length|add:1 }}">{{ of_data.Obs }}</td>
+                                    <td class="entrega-cell" rowspan="{{ subof_length|add:1 }}">{{ of_data.Entrega }}</td>
+                                    <td rowspan="{{ subof_length|add:1 }}">{{ of_data.Descricao }}</td>
+                                </tr>
+                                <!-- Linhas das SubOFs -->
+                                {% for subof in of_data.SubOFs %}
+                                <tr id="subof-{{ subof.ID }}" class="subof-mae-{{ of_data.ID }} {% if forloop.parentloop.counter0 is even %}striped-even{% else %}striped-odd{% endif %}">
+                                    <td><a href="http://triprod:9001/show-fo/{{ subof.ID }}">{{ subof.SubOF }}</a></td>
+                                    <td>{{ subof.Seccao }}</td>
+                                    <td>{{ subof.Ref }}</td>
+                                    <td>{{ subof.Descricao }}</td>
+                                    <td>{{ subof.COMPONENTE }}</td>
+                                    <td>{{ subof.Pedido }}</td>
+                                    <td>{{ subof.Produzida|floatformat:0 }}</td>
+                                    <td>{{ subof.Rejeitada|default:0 }}</td>
+                                    <td>
+                                        <div class="progress">
+                                            <div class="progress-bar bg-success" role="progressbar" 
+                                                 style="width: {{ subof.Processo }}%;" aria-valuenow="{{ subof.Processo }}" 
+                                                 aria-valuemin="0" aria-valuemax="100">
+                                                {{ subof.Processo }}%
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                <!-- Separador -->
+                                <tr class="separator-row">
+                                    <td colspan="17" class="border-top separator-border"></td>
+                                </tr>
+                                {% endwith %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+
+                        <div class="pagination">
+                            <button id="prev-btn" class="btn btn-custom">Anterior</button>
+                            <span id="page-number">Página 1</span>
+                            <button id="next-btn" class="btn btn-custom">Próximo</button>
+                        </div>
+                        
+                    </div>
+                    </div>
+                </div>
+
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+
+<script>
+
+    document.addEventListener("DOMContentLoaded", function() {
+        // Função para fazer a requisição AJAX e reorganizar as SubOFs
+        function reorderSubOFs(ofmaeId) {
+            fetch(`/gestao-of/get_sorted_subofs/?ofmae_id=${ofmaeId}`)
+                .then(response => response.json())
+                .then(data => {
+                    const subofData = data.subofs;
+    
+                    // Localiza as linhas de SubOFs para esse OF Mãe
+                    const subofRows = document.querySelectorAll(`#mae-${ofmaeId} .subof-mae-${ofmaeId}`);
+                    const subofContainer = document.querySelector(`#mae-${ofmaeId}`).parentNode;
+    
+                    // Reorganiza as SubOFs com base na resposta
+                    subofData.forEach((subof, index) => {
+                        // Encontre a SubOF correspondente pelo ID
+                        const subofRow = Array.from(subofRows).find(row => row.id === `subof-${subof.id}`);
+                        
+                        // Adicione a SubOF reorganizada de volta
+                        subofContainer.appendChild(subofRow);
+                    });
+                })
+                .catch(error => {
+                    console.error("Erro ao ordenar as SubOFs: ", error);
+                });
+        }
+    
+        // Iterar sobre todas as OFs Mãe e fazer a requisição AJAX
+        const ofmaeRows = document.querySelectorAll(".of-mae-row");
+        ofmaeRows.forEach(ofmaeRow => {
+            const ofmaeId = ofmaeRow.id.split("-")[1];  // Pega o ID da OF Mãe da linha
+            reorderSubOFs(ofmaeId);
+        });
+    });
+    
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        const naveSelect = document.getElementById('nave');
+        const marcaSelect = document.getElementById('marca');
+        const modeloSelect = document.getElementById('modelo');
+        const tamanhoSelect = document.getElementById('tamanho');
+        const ofertaMaeSelect = document.getElementById('oferta_mae');
+
+    // Quando a nave for selecionada
+    naveSelect.addEventListener('change', function() {
+        updateMarcas();
+    });
+
+    // Quando a marca for selecionada
+    marcaSelect.addEventListener('change', function() {
+        updateModelos();
+    });
+
+    // Quando o modelo for selecionado
+    modeloSelect.addEventListener('change', function() {
+        updateTamanhos();
+    });
+
+    // Quando a oferta mãe for selecionada
+    ofertaMaeSelect.addEventListener('change', function() {
+        // Lógica para atualizar outros campos, se necessário
+        updateOfertasFilhas();
+    });
+
+    function updateMarcas() {
+        let nave = naveSelect.value;
+        fetch(`/gestao-of/get-marcas/?nave=${nave}`)
+            .then(response => response.json())
+            .then(data => {
+                marcaSelect.innerHTML = '<option value="">Selecione uma marca</option>';
+                data.marcas.forEach(function(marca) {
+                    let option = document.createElement('option');
+                    option.value = marca;
+                    option.textContent = marca;
+                    marcaSelect.appendChild(option);
+                });
+                marcaSelect.disabled = !nave;
+                if (nave && marcaSelect.value !== '') {
+                    updateModelos();
+                }
+            });
+    }
+
+    function updateModelos() {
+        let marca = marcaSelect.value;
+        fetch(`/gestao-of/get-modelos/?marca=${marca}`)
+            .then(response => response.json())
+            .then(data => {
+                modeloSelect.innerHTML = '<option value="">Selecione um modelo</option>';
+                data.modelos.forEach(function(modelo) {
+                    let option = document.createElement('option');
+                    option.value = modelo;
+                    option.textContent = modelo;
+                    modeloSelect.appendChild(option);
+                });
+                modeloSelect.disabled = !marca;
+                if (marca && modeloSelect.value !== '') {
+                    updateTamanhos();
+                }
+            });
+    }
+
+    function updateTamanhos() {
+        let modelo = modeloSelect.value;
+        fetch(`/gestao-of/get-tamanhos/?modelo=${modelo}`)
+            .then(response => response.json())
+            .then(data => {
+                tamanhoSelect.innerHTML = '<option value="">Selecione um tamanho</option>';
+                data.tamanhos.forEach(function(tamanho) {
+                    let option = document.createElement('option');
+                    option.value = tamanho;
+                    option.textContent = tamanho;
+                    tamanhoSelect.appendChild(option);
+                });
+                tamanhoSelect.disabled = !modelo;
+            });
+    }
+
+
+    
+
+
+
+    // Inicializar as opções com base nas seleções atuais
+    updateMarcas();
+    updateModelos();
+    updateTamanhos();
+});
+
+     // Quantas OFs por página (5 OFs por página)
+     const rowsPerPage = 5;
+
+     // Pegue todas as OFs (as "OF Mãe")
+     const maeRows = document.querySelectorAll("[id^='mae-']");
+     const separatorRows = document.querySelectorAll(".separator-row");
+ 
+     // Calcule o total de páginas (com base nas OFs)
+     const totalPages = Math.ceil(maeRows.length / rowsPerPage);
+ 
+     let currentPage = 1;
+ 
+     // Função para mostrar as páginas
+     function showPage(page) {
+         // Esconde todas as OFs e linhas de separação primeiro
+         maeRows.forEach((maeRow, index) => {
+             maeRow.style.display = "none"; // Esconde a OF Mãe
+             const associatedSubOFs = document.querySelectorAll(`.subof-mae-${maeRow.id.split('-')[1]}`);
+             associatedSubOFs.forEach(subof => {
+                 subof.style.display = "none"; // Esconde as SubOFs
+             });
+         });
+ 
+         separatorRows.forEach((separatorRow) => {
+             separatorRow.style.display = "none"; // Esconde as linhas de separação
+         });
+ 
+         // Mostra as OFs da página atual (e suas SubOFs) e as linhas de separação
+         let start = (page - 1) * rowsPerPage;
+         let end = start + rowsPerPage;
+ 
+         for (let i = start; i < end && i < maeRows.length; i++) {
+             maeRows[i].style.display = ""; // Mostra a OF Mãe
+             const associatedSubOFs = document.querySelectorAll(`.subof-mae-${maeRows[i].id.split('-')[1]}`);
+             associatedSubOFs.forEach(subof => {
+                 subof.style.display = ""; // Mostra as SubOFs
+             });
+             separatorRows[i].style.display = ""; // Mostra a linha de separação
+         }
+ 
+         // Atualize o número da página
+         document.getElementById("page-number").textContent = `Página ${page}`;
+     }
+ 
+     // Botões de navegação
+     document.getElementById("prev-btn").addEventListener("click", () => {
+         if (currentPage > 1) {
+             currentPage--;
+             showPage(currentPage);
+         }
+     });
+ 
+     document.getElementById("next-btn").addEventListener("click", () => {
+         if (currentPage < totalPages) {
+             currentPage++;
+             showPage(currentPage);
+         }
+     });
+ 
+     // Exibe a primeira página ao carregar
+     showPage(currentPage);
+    
+    document.addEventListener('DOMContentLoaded', function () {
+        const searchInput = document.getElementById('search-subof');
+    
+        searchInput.addEventListener('input', function () {
+            const filter = searchInput.value.toLowerCase();
+            const subofRows = document.querySelectorAll('tr[id^="subof-"]'); // Linhas de SubOFs
+            const maeRows = document.querySelectorAll('tr[id^="mae-"]'); // Linhas de OF Mães
+    
+            maeRows.forEach(maeRow => {
+                const maeId = maeRow.id.split('-')[1];
+                const maeCells = Array.from(maeRow.querySelectorAll('td')); // Atributos da OF Mãe
+                const maeText = maeCells.map(cell => cell.textContent.toLowerCase()).join(' ');
+                const associatedSubOFs = document.querySelectorAll(`.subof-mae-${maeId}`);
+                let showMae = false; // Controle para exibir OF Mãe
+    
+                associatedSubOFs.forEach(subof => {
+                    const subofCells = Array.from(subof.querySelectorAll('td'));
+                    const subofText = subofCells.map(cell => cell.textContent.toLowerCase()).join(' ');
+    
+                    if (subofText.includes(filter) || maeText.includes(filter)) {
+                        subof.style.display = ''; // Mostra SubOF se corresponde ao filtro
+                        showMae = true; // Marca que a OF Mãe deve ser exibida
+                    } else {
+                        subof.style.display = 'none'; // Esconde SubOF se não corresponde
+                    }
+                });
+    
+                if (showMae) {
+                    maeRow.style.display = ''; // Mostra a OF Mãe se alguma SubOF corresponde
+                    const visibleSubOFs = Array.from(associatedSubOFs).filter(subof => subof.style.display !== 'none');
+                    maeRow.querySelectorAll('td').forEach(cell => {
+                        cell.rowSpan = visibleSubOFs.length + 1; // Ajusta rowspan da OF Mãe
+                    });
+                } else {
+                    maeRow.style.display = 'none'; // Esconde a OF Mãe se nenhuma SubOF corresponde
+                }
+            });
+        });
+    });
+</script>
+    
+
+
+
+{% endblock %}
+
+{% block styles %}
+
+{% endblock %}
+
+{% block scripts %}
+{% endblock %}
