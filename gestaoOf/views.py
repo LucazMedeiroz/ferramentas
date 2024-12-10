@@ -1,7 +1,12 @@
+import datetime
 from django.shortcuts import render
 import pyodbc
 import logging
 import time
+from datetime import datetime, timedelta
+
+loggy = logging.getLogger(__name__)
+
 
 # Configurar logging
 logging.basicConfig(
@@ -11,7 +16,7 @@ logging.basicConfig(
 conn = pyodbc.connect(
     'DRIVER={ODBC Driver 17 for SQL Server};'
     'SERVER=192.168.120.9;'
-    'DATABASE=PHCTRI2;'
+    'DATABASE=PHCTRI;'
     'UID=estagio;'
     'PWD=3stAg10..;'
     )
@@ -20,11 +25,13 @@ conn = pyodbc.connect(
 
 def producao_view(request):
     # Conectar ao SQL Server
+    logging.info(f"Parâmetros recebidos: {request.GET}")
+
 
     conn = pyodbc.connect(
         'DRIVER={ODBC Driver 17 for SQL Server};'
         'SERVER=192.168.120.9;'
-        'DATABASE=PHCTRI2;'
+        'DATABASE=PHCTRI;'
         'UID=estagio;'
         'PWD=3stAg10..;'
         )
@@ -33,7 +40,7 @@ def producao_view(request):
         conn = pyodbc.connect(
         'DRIVER={ODBC Driver 17 for SQL Server};'
         'SERVER=192.168.120.9;'
-        'DATABASE=PHCTRI2;'
+        'DATABASE=PHCTRI;'
         'UID=estagio;'
         'PWD=3stAg10..;'
         )
@@ -43,44 +50,62 @@ def producao_view(request):
         
     cursor = conn.cursor()    
     # Inicializar filtros
-    marca = request.GET.get('marca', '')
-    modelo = request.GET.get('modelo', '')
-    tamanho = request.GET.get('tamanho', '')
-    data_inicio = request.GET.get('data_inicio', '')
+    marca = request.GET.get('marca')
+    modelo = request.GET.get('modelo')
+    tamanho = request.GET.get('tamanho')
+    data_inicio = request.GET.get('data_inicio')
     data_fim = request.GET.get('data_fim', '')
-    nave = request.GET.get('nave', '').strip()
-    of_mae = request.GET.get('of_mae', '')
-
-
+    nave = request.GET.getlist('nave')
+    of_mae = request.GET.getlist('of_mae')
+    
+    #de hoje a menso de 60 dias
+    
+    data_2_meses_atras = datetime.now() - timedelta(days=60)
+    data_2_meses_atras = data_2_meses_atras.strftime('%Y-%m-%d')
+    loggy.info(f"Data 2 meses atrás: {data_2_meses_atras}")
+    
 
     # Naves
-    cursor.execute("SELECT DISTINCT nave FROM u_prod_work_center_alb WHERE nave IS NOT NULL ORDER BY nave")
+    cursor.execute("SELECT DISTINCT nave FROM u_prod_work_center_alb WHERE nave IS NOT NULL and nave > 0 ORDER BY nave")
     naves = [row[0] for row in cursor.fetchall()]
 
     # Marcas (sem depender da nave)
-    cursor.execute("SELECT DISTINCT usr1 FROM st ORDER BY usr1")
+    cursor.execute("SELECT DISTINCT trim(usr1) FROM st ORDER BY trim(usr1)")
     marcas = [row[0] for row in cursor.fetchall()]
     
-        # OFs Mãe
-    cursor.execute("SELECT DISTINCT ofparent FROM u_fo_alb WHERE ofparent IS NOT NULL ORDER BY ofparent")
-    of_mae_list = [row[0] for row in cursor.fetchall()]
+        # OFs Mãe onde data_entrega < ultimos dois meses
+        
+    cursor.execute("""
+        SELECT DISTINCT obrano_fo, id, data_entrega
+        FROM u_fo_alb
+        WHERE ofparent IS NULL
+        AND TRY_CONVERT(DATE, CONCAT(SUBSTRING(data_entrega, 7, 4), '-', SUBSTRING(data_entrega, 4, 2), '-', SUBSTRING(data_entrega, 1, 2)), 120) >= CAST(DATEADD(DAY, -60, GETDATE()) AS DATE)
+        AND status IN (2, 4)
+        AND conversao = 0
+        ORDER BY obrano_fo
+
+    """)
+
+    of_mae_list = cursor.fetchall()    #guardar vo obrano_fo e id
+    logging.info(f"OF Mãe List: {of_mae_list}")
+
 
 
     modelos = []
     if marca:
-        cursor.execute("SELECT DISTINCT usr2 FROM st WHERE usr1 = ? ORDER BY usr2", (marca,))
+        cursor.execute("SELECT DISTINCT trim(usr2) FROM st WHERE usr1 = ? ORDER BY trim(usr2)", (marca,))
         modelos = [row[0] for row in cursor.fetchall()]
 
     tamanhos = []
     if modelo:
-        cursor.execute("SELECT DISTINCT u_tamanho FROM st WHERE usr2 = ? ORDER BY u_tamanho", (modelo,))
+        cursor.execute("SELECT DISTINCT trim(u_tamanho) FROM st WHERE usr2 = ? ORDER BY trim(u_tamanho)", (modelo,))
         tamanhos = [row[0] for row in cursor.fetchall()]
 
 
     data = None
     data_list = []
     
-    if marca or modelo or tamanho or data_inicio or data_fim or nave:
+    if marca or modelo or tamanho or data_inicio or data_fim or nave or of_mae:
         # Montar query principal com filtros
         query = """
             SELECT 
@@ -118,7 +143,6 @@ def producao_view(request):
             WHERE 
                 u_fo_alb.status in (2, 4) 
                 AND u_fo_alb.conversao = 0
-
         """
 
         # Adicionar filtros à query
@@ -131,9 +155,11 @@ def producao_view(request):
         if data_inicio and data_fim:
             query += f" AND u_fo_alb.data_entrega BETWEEN '{data_inicio}' AND '{data_fim}'"
         if nave:
-            query += f" AND u_prod_work_center_alb.nave = '{nave}'"
+            nave_filter = ",".join([f"'{n}'" for n in nave])
+            query += f" AND u_prod_work_center_alb.nave IN ({nave_filter})"
         if of_mae:
-            query += f" AND u_fo_alb.ofparent = '{of_mae}'"
+            of_mae_filter = ",".join([f"'{n}'" for n in of_mae])
+            query += f" AND u_fo_alb.ofparent IN ({of_mae_filter})"
 
 
         query += "ORDER BY parent_st.usr1, parent_st.usr2, parent_st.u_tamanho, u_fo_alb.ofparent, st.lang4, u_fo_alb.prox"
@@ -168,7 +194,7 @@ def producao_view(request):
                     'Qt': row['Qt'],
                     'Obs': row['Obs'],     
                     'Entrega': row['Entrega'],
-                    'ID': row['of_id'],
+                    'ID': row['OFMae'],
                     'SubOFs': []
                 }
                 
@@ -207,16 +233,16 @@ def producao_view(request):
         # Paginação
 
     else:
-        # Caso não haja filtros, não há dados para paginar
-        page_obj = None
-
-    conn.close()
+        conn.close()
     
     
     #data de hoje
     data_inicio = time.strftime('%Y-%m-%d')
     #data de hoje mais uma semana
     data_fim = time.strftime('%Y-%m-%d', time.localtime(time.time() + 604800))
+    
+
+
 
     return render(request, 'gestaoOf/producao.html', {
         'page_title': 'Gestão de OF\u00F5s',
@@ -226,7 +252,14 @@ def producao_view(request):
         'naves': naves,
         'of_mae_list': of_mae_list,
         'data': data_list,  # page_obj pode ser None ou uma página de dados
-        'filtros': {'marca': marca, 'modelo': modelo, 'tamanho': tamanho, 'data_inicio': data_inicio, 'data_fim': data_fim, 'nave': nave,  'of_mae': of_mae},
+        'marca': marca,
+        'modelo': modelo,
+        'tamanho': tamanho,
+        'data_inicio': data_inicio,
+        'data_fim': data_fim,
+        'nave': nave,
+        'of_mae': of_mae,
+
     })
 
 
@@ -255,10 +288,10 @@ def get_marcas(request):
 
     if not of_mae:
         # Se nenhuma OF Mãe foi selecionada, buscar todas as marcas
-        cursor.execute("SELECT DISTINCT usr1 FROM st ORDER BY usr1")
+        cursor.execute("SELECT DISTINCT trim(usr1) FROM st ORDER BY usr1")
     else:
         # Buscar marcas baseadas na OF Mãe selecionada
-        cursor.execute("SELECT DISTINCT usr1 FROM st WHERE ref IN (SELECT ref FROM u_fo_alb WHERE ofparent = ?) ORDER BY usr1", (of_mae,))
+        cursor.execute("SELECT DISTINCT trim(usr1) FROM st WHERE ref IN (SELECT ref FROM u_fo_alb WHERE ofparent = ?) ORDER BY usr1", (of_mae,))
 
     marcas = [row[0] for row in cursor.fetchall()]
     conn.close()
@@ -269,7 +302,7 @@ def get_modelos(request):
     marca = request.GET.get('marca')
     modelos = []
     if marca:
-        cursor.execute("SELECT DISTINCT usr2 FROM st WHERE usr1 = ? ORDER BY usr2", (marca,))
+        cursor.execute("SELECT DISTINCT trim(usr2) FROM st WHERE usr1 = ? ORDER BY trim(usr2)", (marca,))
         modelos = [row[0] for row in cursor.fetchall()]
     return JsonResponse({'modelos': modelos})
 
@@ -278,7 +311,7 @@ def get_tamanhos(request):
     modelo = request.GET.get('modelo')
     tamanhos = []
     if modelo:
-        cursor.execute("SELECT DISTINCT u_tamanho FROM st WHERE usr2 = ? ORDER BY u_tamanho", (modelo,))
+        cursor.execute("SELECT DISTINCT trim(u_tamanho) FROM st WHERE usr2 = ? ORDER BY u_tamanho", (modelo,))
         tamanhos = [row[0] for row in cursor.fetchall()]
     return JsonResponse({'tamanhos': tamanhos})
 

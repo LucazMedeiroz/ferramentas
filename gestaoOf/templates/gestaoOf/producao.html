@@ -7,7 +7,22 @@
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
 
 
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+<!-- Incluindo o bootstrap-select CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.1/dist/css/bootstrap-select.min.css">
+
+<!-- Incluindo o jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Incluindo o Bootstrap JS -->
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+
+<!-- Incluindo o bootstrap-select JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.1/dist/js/bootstrap-select.min.js"></script>
+
 <style>
+
     .table th, .table td {
         padding: 0.5rem;
     }
@@ -133,44 +148,51 @@
 </style>
 
 
+
+
 <div class="container-per">
 <div class="row">
     <div class="col-md-12">
         <div class="content margin-box">
-            <div class="title">
-                <span>Gestão de OF's</span>
-            </div>
+
+
+            
+
+
             <div class="row">
                 <form method="get" class="form">
                     <div class="row">
                         <div class="col-md-1">
                             <label for="nave">Nave:</label>
-                            <select id="nave" name="nave" class="form-control">
-                                <option value="">----</option>
-                                {% for nave in naves %}
-                                <option value="{{ nave }}" {% if filtros.nave|default:'' == nave %}selected{% endif %}>{{ nave }}</option>
+                            <select id="nave" name="nave" class="form-control selectpicker" data-live-search="true" multiple>
+                                <option value="">----</option> 
+                                {% for nave1 in naves %}
+                                    <option value="{{ nave1 }}" {% if nave and nave1 in nave %}selected{% endif %}>{{ nave1 }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-md-2">
+                            <label for="of_mae">OF Mãe:</label>
+                            <select id="of_mae" name="of_mae" class="form-control selectpicker" data-live-search="true"  onchange="ofSelected()" multiple>
+                                <option value="">----</option> 
+                                {% for of in of_mae_list %}
+                                <option value="{{ of.1 }}" {% if of_mae == of.1 %}selected{% endif %}>{{ of.0 }}</option>
                                 {% endfor %}
                             </select>
                         </div>
                         
-                        <div class="col-md-2">
-                            <label for="oferta_mae">OF Mãe:</label>
-                            <select name="of_mae" id="of_mae" class="form-control">
-                                <option value="">----</option>
-                                {% for item in of_mae_list %}  <!-- Corrigido para usar of_mae_list -->
-                                <option value="{{ item }}" {% if filtros.of_mae == item %}selected{% endif %}>{{ item }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
+                        
+      
                         
 
                 
                         <div class="col-md-2">
                             <label for="marca">Marca:</label>
-                            <select name="marca" id="marca" class="form-control">
+                            <select name="marca" id="marca" class="form-control selectpicker" data-live-search="true">
                                 <option value="">----</option>
-                                {% for marca in marcas %}
-                                <option value="{{ marca }}" {% if filtros.marca == marca %}selected{% endif %}>{{ marca }}</option>
+                                {% for marca_item in marcas %}
+                                <option value="{{ marca_item }}" {% if marca == marca_item %}selected{% endif %}>{{ marca_item }}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -180,7 +202,7 @@
                             <select name="modelo" id="modelo" class="form-control">
                                 <option value="">----</option>
                                 {% for modelo in modelos %}
-                                <option value="{{ modelo }}" {% if filtros.modelo == modelo %}selected{% endif %}>{{ modelo }}</option>
+                                <option value="{{ modelo }}" {% if modelo == modelo %}selected{% endif %}>{{ modelo }}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -190,7 +212,7 @@
                             <select name="tamanho" id="tamanho" class="form-control">
                                 <option value="">----</option>
                                 {% for tamanho in tamanhos %}
-                                <option value="{{ tamanho }}" {% if filtros.tamanho == tamanho %}selected{% endif %}>{{ tamanho }}</option>
+                                <option value="{{ tamanho }}" {% if tamanho == tamanho %}selected{% endif %}>{{ tamanho }}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -207,12 +229,12 @@
                 
                         <div class="col-md-2">
                             <label for="data_inicio">De:</label>
-                            <input type="date" name="data_inicio" class="form-control" value="{{ filtros.data_inicio }}">
+                            <input type="date" name="data_inicio" class="form-control" value="{{ data_inicio }}">
                         </div>
                 
                         <div class="col-md-2">
                             <label for="data_fim">Até:</label>
-                            <input type="date" name="data_fim" class="form-control" value="{{ filtros.data_fim }}">
+                            <input type="date" name="data_fim" class="form-control" value="{{ data_fim }}">
                         </div>
 
 
@@ -304,6 +326,7 @@
                                 </tr>
                                 <!-- Linhas das SubOFs -->
                                 {% for subof in of_data.SubOFs %}
+
                                 <tr id="subof-{{ subof.ID }}" class="subof-mae-{{ of_data.ID }} {% if forloop.parentloop.counter0 is even %}striped-even{% else %}striped-odd{% endif %}">
                                     <td><a href="http://triprod:9001/show-fo/{{ subof.ID }}">{{ subof.SubOF }}</a></td>
                                     <td>{{ subof.Seccao }}</td>
@@ -314,6 +337,7 @@
                                     <td>{{ subof.Produzida|floatformat:0 }}</td>
                                     <td>{{ subof.Rejeitada|default:0 }}</td>
                                     <td>
+                                        {% if subof.Processo >= 100 %}
                                         <div class="progress">
                                             <div class="progress-bar bg-success" role="progressbar" 
                                                  style="width: {{ subof.Processo }}%;" aria-valuenow="{{ subof.Processo }}" 
@@ -321,6 +345,16 @@
                                                 {{ subof.Processo }}%
                                             </div>
                                         </div>
+                                        {% else %}
+                                        <div class="progress">
+                                            <div class="progress-bar bg-primary" role="progressbar" 
+                                                 style="width: {{ subof.Processo }}%;" aria-valuenow="{{ subof.Processo }}" 
+                                                 aria-valuemin="0" aria-valuemax="100">
+                                                {{ subof.Processo }}%
+                                            </div>
+                                        </div>
+                                        {% endif %}
+
                                     </td>
                                 </tr>
                                 {% endfor %}
@@ -335,7 +369,8 @@
 
                         <div class="pagination">
                             <button id="prev-btn" class="btn btn-custom">Anterior</button>
-                            <span id="page-number">Página 1</span>
+                            <!--Página 1 de total-->
+                            <span id="page-number">Página 1 de -</span>
                             <button id="next-btn" class="btn btn-custom">Próximo</button>
                         </div>
                         
@@ -362,9 +397,18 @@
 
 </div>
 
-<script>
 
+
+<script>
     document.addEventListener("DOMContentLoaded", function() {
+
+
+
+        $(document).ready(function() {
+            // Inicializa o selectpicker para permitir busca
+            $('#nave').selectpicker();
+        });
+
         // Função para fazer a requisição AJAX e reorganizar as SubOFs
         function reorderSubOFs(ofmaeId) {
             fetch(`/gestao-of/get_sorted_subofs/?ofmae_id=${ofmaeId}`)
@@ -482,6 +526,15 @@
     }
 
 
+
+
+
+
+    
+
+
+
+
     
 
 
@@ -533,8 +586,8 @@
          }
  
          // Atualize o número da página
-         document.getElementById("page-number").textContent = `Página ${page}`;
-     }
+         document.getElementById("page-number").textContent = `Página ${page} - ${totalPages}`;
+        }
  
      // Botões de navegação
      document.getElementById("prev-btn").addEventListener("click", () => {
@@ -553,15 +606,26 @@
  
      // Exibe a primeira página ao carregar
      showPage(currentPage);
-    
-    document.addEventListener('DOMContentLoaded', function () {
+     document.addEventListener('DOMContentLoaded', function () {
         const searchInput = document.getElementById('search-subof');
+        const paginationControls = document.querySelector(".pagination"); // Seleciona a div com a classe "pagination"
     
         searchInput.addEventListener('input', function () {
             const filter = searchInput.value.toLowerCase();
-            const subofRows = document.querySelectorAll('tr[id^="subof-"]'); // Linhas de SubOFs
             const maeRows = document.querySelectorAll('tr[id^="mae-"]'); // Linhas de OF Mães
+            const separatorRows = document.querySelectorAll(".separator-row"); // Linhas separadoras
     
+            // Verifica se o filtro está vazio ou preenchido
+            const hasSearch = filter.trim().length > 0;
+    
+            // Mostra ou oculta a paginação com base no filtro
+            if (hasSearch) {
+                paginationControls.style.display = "none"; // Oculta paginação
+            } else {
+                paginationControls.style.display = ""; // Mostra paginação
+            }
+    
+            // Lógica de filtragem
             maeRows.forEach(maeRow => {
                 const maeId = maeRow.id.split('-')[1];
                 const maeCells = Array.from(maeRow.querySelectorAll('td')); // Atributos da OF Mãe
@@ -591,8 +655,73 @@
                     maeRow.style.display = 'none'; // Esconde a OF Mãe se nenhuma SubOF corresponde
                 }
             });
+    
+            // Oculta as linhas separadoras durante a busca
+            separatorRows.forEach(separator => {
+                separator.style.display = hasSearch ? 'none' : ''; // Mostra ou esconde separadores
+            });
         });
     });
+    
+        // Função que limpa e desabilita os campos
+    function resetFields() {
+        console.log('resetFields');
+        // Selecionar os campos que precisam ser limpos e desabilitados
+        const dataInicioField = document.querySelector('input[name="data_inicio"]');
+        const dataFimField = document.querySelector('input[name="data_fim"]');
+        const modeloField = document.querySelector('select[name="modelo"]');
+        const tamanhoField = document.querySelector('select[name="tamanho"]');
+        const marcaField = document.querySelector('select[name="marca"]');
+        const ofMaeField = document.querySelector('select[name="of_mae"]');
+            
+            // Limpar os campos
+        dataInicioField.value = '';
+        dataFimField.value = '';
+        modeloField.value = '';
+        tamanhoField.value = '';
+        marcaField.value = '';
+            
+            // Tornar os campos apenas leitura (readonly) ou desabilitar (disabled)
+        dataInicioField.setAttribute('readonly', true);
+        dataFimField.setAttribute('readonly', true);
+        modeloField.setAttribute('disabled', true);
+        tamanhoField.setAttribute('disabled', true);
+        marcaField.setAttribute('disabled', true);
+        }
+    
+        // Função que habilita os campos novamente
+    function enableFields() {
+            // Selecionar os campos que precisam ser habilitados
+        console.log('enableFields');
+        const dataInicioField = document.querySelector('input[name="data_inicio"]');
+        const dataFimField = document.querySelector('input[name="data_fim"]');
+        const modeloField = document.querySelector('select[name="modelo"]');
+        const tamanhoField = document.querySelector('select[name="tamanho"]');
+        const marcaField = document.querySelector('select[name="marca"]');
+    
+            // Remover o atributo readonly e habilitar os campos
+        dataInicioField.removeAttribute('readonly');
+        dataFimField.removeAttribute('readonly');
+        modeloField.removeAttribute('disabled');
+        tamanhoField.removeAttribute('disabled');
+        marcaField.removeAttribute('disabled');
+        }
+    
+
+    function ofSelected () {
+        const ofMaeField = document.querySelector('select[name="of_mae"]');
+
+        if (ofMaeField.value) {
+            resetFields(); // Limpar e desabilitar os campos
+            console.log('ofMaeField.value');
+        } else {
+            enableFields();  // Habilitar os campos novamente caso não tenha seleção
+            console.log('else');
+
+        }
+    }
+    
+
 </script>
     
 

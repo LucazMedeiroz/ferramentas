@@ -161,7 +161,9 @@ html, body, .wrapper, .content {
                         <li><a class="dropdown-item" href="{% url 'validadorView' %}">Validador do Da Entrada</a></li>
                         <li><a class="dropdown-item" href="{% url 'validadorparent' %}">Validador do Parent</a></li>
                         <li><a class="dropdown-item" href="{% url 'validadorOF' %}">Validador de OF</a></li>
+                        <li><a class="dropdown-item" href="{% url 'consulta_producao' %}">Gestão de OF's</a></li>
                         <li><a class="dropdown-item" href="{% url 'historico' %}">Historico</a></li>
+
 
 
                         {% if user.is_superuser %}
@@ -244,13 +246,13 @@ html, body, .wrapper, .content {
                                 <h3>PRODUTIVIDADE</h3>
                                 <p>Verifica a produção de cada posto de trabalho</p>
                             </div>
-                            <!--
+                            
                             <div class="col-md-3 feature" onclick="nave1()">
                                 <i class="fas fa-chart-line fa-2x"></i>
-                                <h3>PRODUÇÃO NAVE 1</h3>
-                                <p>Verifica a produção da Nave 1</p>
+                                <h3>Gestão de OF's</h3>
+                                <p>Gere as </p>
                             </div>
-                            -->
+                            
 
                             <div class="col-md-3 feature" onclick="cartao()">
                                 <i class="fas fa-credit-card fa-2x"></i>

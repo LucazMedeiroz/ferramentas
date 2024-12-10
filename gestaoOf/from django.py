@@ -1,66 +1,111 @@
+import datetime
 from django.shortcuts import render
 import pyodbc
 import logging
 import time
+from datetime import datetime, timedelta
+
+loggy = logging.getLogger(__name__)
+
 
 # Configurar logging
 logging.basicConfig(
     level=logging.INFO,  # Você pode usar DEBUG para mais detalhes
     format='%(asctime)s - %(levelname)s - %(message)s',
 )
+conn = pyodbc.connect(
+    'DRIVER={ODBC Driver 17 for SQL Server};'
+    'SERVER=192.168.120.9;'
+    'DATABASE=PHCTRI;'
+    'UID=estagio;'
+    'PWD=3stAg10..;'
+    )
 
 
 
 def producao_view(request):
     # Conectar ao SQL Server
+    logging.info(f"Parâmetros recebidos: {request.GET}")
+
+
     conn = pyodbc.connect(
         'DRIVER={ODBC Driver 17 for SQL Server};'
-        'SERVER=SERVER;'
-        'DATABASE=DB;'
-        'UID=user;'
-        'PWD=pass..;'
-    )
-    cursor = conn.cursor()
-    
+        'SERVER=192.168.120.9;'
+        'DATABASE=PHCTRI;'
+        'UID=estagio;'
+        'PWD=3stAg10..;'
+        )
+#se a conexão estiver fechada abrir a conexão
+    if conn.closed:
+        conn = pyodbc.connect(
+        'DRIVER={ODBC Driver 17 for SQL Server};'
+        'SERVER=192.168.120.9;'
+        'DATABASE=PHCTRI;'
+        'UID=estagio;'
+        'PWD=3stAg10..;'
+        )
+        logging.info('Conexão reaberta')
+    else:
+        logging.info('Conexão aberta')
+        
+    cursor = conn.cursor()    
     # Inicializar filtros
-    marca = request.GET.get('marca', '')
-    modelo = request.GET.get('modelo', '')
-    tamanho = request.GET.get('tamanho', '')
-    data_inicio = request.GET.get('data_inicio', '')
+    marca = request.GET.get('marca')
+    modelo = request.GET.get('modelo')
+    tamanho = request.GET.get('tamanho')
+    data_inicio = request.GET.get('data_inicio')
     data_fim = request.GET.get('data_fim', '')
-    nave = request.GET.get('nave', '').strip()
-    of_mae = request.GET.get('of_mae', '')
-
-
+    nave = request.GET.getlist('nave')
+    of_mae = request.GET.get('of_mae')
+    
+    #de hoje a menso de 60 dias
+    
+    data_2_meses_atras = datetime.now() - timedelta(days=60)
+    data_2_meses_atras = data_2_meses_atras.strftime('%Y-%m-%d')
+    loggy.info(f"Data 2 meses atrás: {data_2_meses_atras}")
+    
 
     # Naves
-    cursor.execute("SELECT DISTINCT nave FROM u_prod_work_center_alb WHERE nave IS NOT NULL ORDER BY nave")
+    cursor.execute("SELECT DISTINCT nave FROM u_prod_work_center_alb WHERE nave IS NOT NULL and nave > 0 ORDER BY nave")
     naves = [row[0] for row in cursor.fetchall()]
 
     # Marcas (sem depender da nave)
-    cursor.execute("SELECT DISTINCT usr1 FROM st ORDER BY usr1")
+    cursor.execute("SELECT DISTINCT trim(usr1) FROM st ORDER BY trim(usr1)")
     marcas = [row[0] for row in cursor.fetchall()]
     
-        # OFs Mãe
-    cursor.execute("SELECT DISTINCT ofparent FROM u_fo_alb WHERE ofparent IS NOT NULL ORDER BY ofparent")
-    of_mae_list = [row[0] for row in cursor.fetchall()]
+        # OFs Mãe onde data_entrega < ultimos dois meses
+        
+    cursor.execute("""
+        SELECT DISTINCT obrano_fo, id, data_entrega
+        FROM u_fo_alb
+        WHERE ofparent IS NULL
+        AND TRY_CONVERT(DATE, CONCAT(SUBSTRING(data_entrega, 7, 4), '-', SUBSTRING(data_entrega, 4, 2), '-', SUBSTRING(data_entrega, 1, 2)), 120) >= CAST(DATEADD(DAY, -60, GETDATE()) AS DATE)
+        AND status IN (2, 4)
+        AND conversao = 0
+        ORDER BY obrano_fo
+
+    """)
+
+    of_mae_list = cursor.fetchall()    #guardar vo obrano_fo e id
+    logging.info(f"OF Mãe List: {of_mae_list}")
+
 
 
     modelos = []
     if marca:
-        cursor.execute("SELECT DISTINCT usr2 FROM st WHERE usr1 = ? ORDER BY usr2", (marca,))
+        cursor.execute("SELECT DISTINCT trim(usr2) FROM st WHERE usr1 = ? ORDER BY trim(usr2)", (marca,))
         modelos = [row[0] for row in cursor.fetchall()]
 
     tamanhos = []
     if modelo:
-        cursor.execute("SELECT DISTINCT u_tamanho FROM st WHERE usr2 = ? ORDER BY u_tamanho", (modelo,))
+        cursor.execute("SELECT DISTINCT trim(u_tamanho) FROM st WHERE usr2 = ? ORDER BY trim(u_tamanho)", (modelo,))
         tamanhos = [row[0] for row in cursor.fetchall()]
 
 
     data = None
     data_list = []
     
-    if marca or modelo or tamanho or data_inicio or data_fim or nave:
+    if marca or modelo or tamanho or data_inicio or data_fim or nave or of_mae:
         # Montar query principal com filtros
         query = """
             SELECT 
@@ -73,6 +118,7 @@ def producao_view(request):
                 u_fo_alb.data_entrega AS Entrega, 
                 u_prod_work_center_alb.nave AS Nave,
                 u_fo_alb.obrano_fo AS SubOF, 
+				u_fo_alb.prox,
                 st.lang4 AS COMPONENTE, 
                 u_sections_alb.name AS Seccao, 
                 st.design AS Descricao, 
@@ -109,17 +155,21 @@ def producao_view(request):
         if data_inicio and data_fim:
             query += f" AND u_fo_alb.data_entrega BETWEEN '{data_inicio}' AND '{data_fim}'"
         if nave:
-            query += f" AND u_prod_work_center_alb.nave = '{nave}'"
+            nave_filter = ",".join([f"'{n}'" for n in nave])
+            query += f" AND u_prod_work_center_alb.nave IN ({nave_filter})"
         if of_mae:
             query += f" AND u_fo_alb.ofparent = '{of_mae}'"
 
 
-        query += " ORDER BY parent_st.usr1, parent_st.usr2, parent_st.u_tamanho, u_fo_alb.ofparent, u_fo_alb.obrano_fo"
+        query += "ORDER BY parent_st.usr1, parent_st.usr2, parent_st.u_tamanho, u_fo_alb.ofparent, st.lang4, u_fo_alb.prox"
         
-        #obter os ids da of mae, por em um array, e fazer a query temporaria e depois ordernar a query anterior por esse array
-
+        logging.info(f"Query: {query}")
+        
+        #fazer um array com as ofmae do resultado
+        
         # Executar a query
         cursor.execute(query)
+        
         columns = [column[0] for column in cursor.description]
         rows = [dict(zip(columns, row)) for row in cursor.fetchall()]
 
@@ -143,7 +193,7 @@ def producao_view(request):
                     'Qt': row['Qt'],
                     'Obs': row['Obs'],     
                     'Entrega': row['Entrega'],
-                    'ID': row['of_id'],
+                    'ID': row['OFMae'],
                     'SubOFs': []
                 }
                 
@@ -177,70 +227,38 @@ def producao_view(request):
                 
             })
             
-        # Ordenar as OFs Mãe pela data de entrega
-        data_list = sorted(
-            [{'OFMae': key, **value} for key, value in data.items()],
-            key=lambda x: x['Entrega'],  # Ordenar por data de entrega
-        )
-        
-        
-        # Ordenar as SubOFs de cada OF Mãe
-        for ofmae_data in data_list:
-            ofmae_id = ofmae_data['OFMae']
-            
-            # Executar a consulta para ordenar as SubOFs
-            cursor.execute(f"""
-                SELECT a.obrano_fo, a.ref, c.design, a.operation_name, a.id, a.prox,
-                    b.obrano_fo AS prox_obrano_fo, b.operation_name AS prox_operation_name,
-                    b.nivel, c.lang4, d.nave
-                FROM u_fo_alb a
-                LEFT JOIN u_fo_alb b ON a.prox = b.id
-                INNER JOIN st c ON c.ref = a.ref
-                INNER JOIN u_prod_work_center_alb d ON d.id = b.ct_id
-                WHERE a.ofparent = ? AND d.nave IN (1, 5, 2)
-                ORDER BY c.lang4, a.prox DESC
-            """, (ofmae_id,))
+        data_list = [{'OFMae': key, **value} for key, value in data.items()]
 
-            subofs_rows = cursor.fetchall()
+        # Paginação
 
-            # Organizar e adicionar as SubOFs na OF Mãe
-            subofs = []
-            for subof_row in subofs_rows:
-                subofs.append({
-                    'SubOF': subof_row.obrano_fo,
-                    'COMPONENTE': subof_row.lang4,
-                    'Descricao': subof_row.operation_name,
-                    'Pedido': subof_row.prox,  # Caso necessário adaptar a lógica de 'Pedido'
-                    'Produzida': subof_row.nivel,  # Caso necessário adaptar a lógica de 'Produzida'
-                    'Rejeitada': 0,  # Ajuste conforme necessário
-                    'Seccao': subof_row.design,
-                    'Ref': subof_row.ref,
-                    'Processo': 0,  # Calcule o processo conforme necessário
-                    'ID': subof_row.id,
-                    'OFMae': ofmae_id,
-                })
-            
-            # Substitua ou adicione a lista de SubOFs ordenadas para cada OF Mãe
-            ofmae_data['SubOFs'] = subofs
-
-        # Caso não haja filtros, não há dados para paginar
-
-    conn.close()
+    else:
+        conn.close()
     
     
     #data de hoje
     data_inicio = time.strftime('%Y-%m-%d')
     #data de hoje mais uma semana
     data_fim = time.strftime('%Y-%m-%d', time.localtime(time.time() + 604800))
+    
+
+
 
     return render(request, 'gestaoOf/producao.html', {
+        'page_title': 'Gestão de OF\u00F5s',
         'marcas': marcas,
         'modelos': modelos,
         'tamanhos': tamanhos,
         'naves': naves,
         'of_mae_list': of_mae_list,
         'data': data_list,  # page_obj pode ser None ou uma página de dados
-        'filtros': {'marca': marca, 'modelo': modelo, 'tamanho': tamanho, 'data_inicio': data_inicio, 'data_fim': data_fim, 'nave': nave,  'of_mae': of_mae},
+        'marca': marca,
+        'modelo': modelo,
+        'tamanho': tamanho,
+        'data_inicio': data_inicio,
+        'data_fim': data_fim,
+        'nave': nave,
+        'of_mae': of_mae,
+
     })
 
 
@@ -249,10 +267,10 @@ from django.http import JsonResponse
 
 conn = pyodbc.connect(
         'DRIVER={ODBC Driver 17 for SQL Server};'
-        'SERVER=SERVER;'
-        'DATABASE=DB;'
-        'UID=user;'
-        'PWD=pass..;'
+        'SERVER=192.168.120.9;'
+        'DATABASE=PHCTRI;'
+        'UID=estagio;'
+        'PWD=3stAg10..;'
     )
 cursor = conn.cursor()
 
@@ -260,19 +278,19 @@ def get_marcas(request):
     of_mae = request.GET.get('of_mae')
     conn = pyodbc.connect(
         'DRIVER={ODBC Driver 17 for SQL Server};'
-        'SERVER=SERVER;'
-        'DATABASE=DB;'
-        'UID=user;'
-        'PWD=pass..;'
+        'SERVER=192.168.120.9;'
+        'DATABASE=PHCTRI;'
+        'UID=estagio;'
+        'PWD=3stAg10..;'
     )
     cursor = conn.cursor()
 
     if not of_mae:
         # Se nenhuma OF Mãe foi selecionada, buscar todas as marcas
-        cursor.execute("SELECT DISTINCT usr1 FROM st ORDER BY usr1")
+        cursor.execute("SELECT DISTINCT trim(usr1) FROM st ORDER BY usr1")
     else:
         # Buscar marcas baseadas na OF Mãe selecionada
-        cursor.execute("SELECT DISTINCT usr1 FROM st WHERE ref IN (SELECT ref FROM u_fo_alb WHERE ofparent = ?) ORDER BY usr1", (of_mae,))
+        cursor.execute("SELECT DISTINCT trim(usr1) FROM st WHERE ref IN (SELECT ref FROM u_fo_alb WHERE ofparent = ?) ORDER BY usr1", (of_mae,))
 
     marcas = [row[0] for row in cursor.fetchall()]
     conn.close()
@@ -283,7 +301,7 @@ def get_modelos(request):
     marca = request.GET.get('marca')
     modelos = []
     if marca:
-        cursor.execute("SELECT DISTINCT usr2 FROM st WHERE usr1 = ? ORDER BY usr2", (marca,))
+        cursor.execute("SELECT DISTINCT trim(usr2) FROM st WHERE usr1 = ? ORDER BY trim(usr2)", (marca,))
         modelos = [row[0] for row in cursor.fetchall()]
     return JsonResponse({'modelos': modelos})
 
@@ -292,6 +310,59 @@ def get_tamanhos(request):
     modelo = request.GET.get('modelo')
     tamanhos = []
     if modelo:
-        cursor.execute("SELECT DISTINCT u_tamanho FROM st WHERE usr2 = ? ORDER BY u_tamanho", (modelo,))
+        cursor.execute("SELECT DISTINCT trim(u_tamanho) FROM st WHERE usr2 = ? ORDER BY u_tamanho", (modelo,))
         tamanhos = [row[0] for row in cursor.fetchall()]
     return JsonResponse({'tamanhos': tamanhos})
+
+
+from django.http import JsonResponse
+from django.db import connection
+
+def get_sorted_subofs(request):
+    try:
+        ofmae_id = request.GET.get('ofmae_id', None)
+        if not ofmae_id:
+            return JsonResponse({'error': 'ofmae_id é necessário'}, status=400)
+
+        # Aqui você pode executar as queries usando a conexão
+        cursor = conn.cursor()
+        
+        # Consulta de exemplo
+        cursor.execute(f"""
+            select obrano_fo, ref, operation_name, id, prox
+            into #tempof
+            from u_fo_alb
+            where ofparent = {ofmae_id} and prox in (select id from u_fo_alb)
+        """)
+        
+        cursor.execute("""
+            select a.obrano_fo, a.ref, c.design, a.operation_name, a.id, a.prox,
+                   b.obrano_fo, b.operation_name, b.nivel,
+                   c.lang4, d.nave
+            from #tempof a
+            left join u_fo_alb b on a.prox = b.id
+            inner join st c on c.ref = a.ref
+            inner join u_prod_work_center_alb d on d.id = b.ct_id
+            where nave in (1, 5, 2)
+            order by lang4, prox desc
+        """)
+        
+        # Processar os dados retornados pela consulta
+        result = cursor.fetchall()
+        
+        subof_data = []
+        for row in result:
+            subof_data.append({
+                'obrano_fo': row.obrano_fo,
+                'ref': row.ref,
+                'operation_name': row.operation_name,
+                'id': row.id,
+                'prox': row.prox,
+                'nave': row.nave,
+            })
+        
+        return JsonResponse({'subofs': subof_data})
+    except pyodbc.Error as e:
+        return JsonResponse({'error': str(e)}, status=500)
+    finally:
+        cursor.close()
