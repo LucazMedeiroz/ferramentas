@@ -247,10 +247,10 @@ html, body, .wrapper, .content {
                                 <p>Verifica a produção de cada posto de trabalho</p>
                             </div>
                             
-                            <div class="col-md-3 feature" onclick="nave1()">
+                            <div class="col-md-3 feature" onclick="gerirOFs()">
                                 <i class="fas fa-chart-line fa-2x"></i>
                                 <h3>Gestão de OF's</h3>
-                                <p>Gere as </p>
+                                <p>Gere as OF´s</p>
                             </div>
                             
 
@@ -388,6 +388,13 @@ document.addEventListener('DOMContentLoaded', function() {
         window
         .location
         .assign("{% url 'material' %}");
+        }
+
+        function gerirOFs() {
+        //redireciona para {% url 'qualidade' % 
+        window
+        .location
+        .assign("{% url 'consulta_producao' %}");
         }
 
 

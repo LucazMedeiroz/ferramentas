@@ -1,4 +1,8 @@
+<!--include static-->
+
 {% extends 'home/base.html' %}
+
+
 
 {% block title %}Gestão de OF's{% endblock %}
 
@@ -161,94 +165,96 @@
 
             <div class="row">
                 <form method="get" class="form">
-                    <div class="row">
-                        <div class="col-md-1">
-                            <label for="nave">Nave:</label>
-                            <select id="nave" name="nave" class="form-control selectpicker" data-live-search="true" multiple>
-                                <option value="">----</option> 
-                                {% for nave1 in naves %}
-                                    <option value="{{ nave1 }}" {% if nave and nave1 in nave %}selected{% endif %}>{{ nave1 }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
+                <div class="row">
+                    <div class="col-md-1">
+                        <label for="nave">Nave:</label>
+                        <select id="nave" name="nave" class="form-control selectpicker" data-live-search="true" multiple>
+                            <option value="">----</option>
+                            {% for nave1 in naves %}
+                                <option value="{{ nave1 }}">{{ nave1 }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+            
+                    <div class="col-md-2">
+                        <label for="of_mae">OF Mãe:</label>
+                        <select id="of_mae" name="of_mae" class="form-control selectpicker" data-live-search="true" onchange="OFMaeChange()" multiple>
+                            <option value="">----</option>
+                            {% for of in of_mae_list %}
+                                <option value="{{ of.1 }}" {% if of_mae and of.1 in of_mae %}selected{% endif %}>{{ of.0 }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                                <!-- 
 
-                        <div class="col-md-2">
-                            <label for="of_mae">OF Mãe:</label>
-                            <select id="of_mae" name="of_mae" class="form-control selectpicker" data-live-search="true"  onchange="ofSelected()" multiple>
-                                <option value="">----</option> 
-                                {% for of in of_mae_list %}
-                                <option value="{{ of.1 }}" {% if of_mae == of.1 %}selected{% endif %}>{{ of.0 }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        
-                        
-      
-                        
-
-                
-                        <div class="col-md-2">
-                            <label for="marca">Marca:</label>
-                            <select name="marca" id="marca" class="form-control selectpicker" data-live-search="true">
-                                <option value="">----</option>
-                                {% for marca_item in marcas %}
+                    <div class="col-md-2">
+                        <label for="marca">Marca:</label>
+                        <select name="marca" id="marca" class="form-control selectpicker" data-live-search="true">
+                            <option value="">----</option>
+                            {% for marca_item in marcas %}
                                 <option value="{{ marca_item }}" {% if marca == marca_item %}selected{% endif %}>{{ marca_item }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                
-                        <div class="col-md-2">
-                            <label for="modelo">Modelo:</label>
-                            <select name="modelo" id="modelo" class="form-control">
-                                <option value="">----</option>
-                                {% for modelo in modelos %}
-                                <option value="{{ modelo }}" {% if modelo == modelo %}selected{% endif %}>{{ modelo }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                
-                        <div class="col-md-2">
-                            <label for="tamanho">Tamanho:</label>
-                            <select name="tamanho" id="tamanho" class="form-control">
-                                <option value="">----</option>
-                                {% for tamanho in tamanhos %}
-                                <option value="{{ tamanho }}" {% if tamanho == tamanho %}selected{% endif %}>{{ tamanho }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
+                            {% endfor %}
+                        </select>
                     </div>
+                -->
 
-                    <div class="row mt-3">
-                        <div class="col-md-1 mt-2">
-                            <br>
-                            <span>Data de Entrega</span>
-                        </div>
-                        
-
-
-                
-                        <div class="col-md-2">
-                            <label for="data_inicio">De:</label>
-                            <input type="date" name="data_inicio" class="form-control" value="{{ data_inicio }}">
-                        </div>
-                
-                        <div class="col-md-2">
-                            <label for="data_fim">Até:</label>
-                            <input type="date" name="data_fim" class="form-control" value="{{ data_fim }}">
-                        </div>
-
-
-
-                        <div class="col-md-1">
-                            <br>
-                            <button type="submit" class="btn btn-outline-danger form-control">Filtrar</button>
-                        </div>
+                    <div class="col-md-2">
+                        <label for="marca">Marca:</label>
+                        <select name="marca" id="marca" class="form-control" data-live-search="true">
+                            <option value="">----</option>
+                            {% for marca_item in marcas %}
+                                <option value="{{ marca_item }}" {% if marca == marca_item %}selected{% endif %}>{{ marca_item }}</option>
+                            {% endfor %}
+                        </select>
                     </div>
 
 
-                
-       
-                </form>
+                    
+            
+                    <div class="col-md-2">
+                        <label for="modelo">Modelo:</label>
+                        <select name="modelo" id="modelo" class="form-control">
+                            <option value="">----</option>
+                            {% for modelo_item in modelos %}
+                                <option value="{{ modelo_item }}" {% if modelo == modelo_item %}selected{% endif %}>{{ modelo_item }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+            
+                    <div class="col-md-2">
+                        <label for="tamanho">Tamanho:</label>
+                        <select name="tamanho" id="tamanho" class="form-control">
+                            <option value="">----</option>
+                            {% for tamanho_item in tamanhos %}
+                                <option value="{{ tamanho_item }}" {% if tamanho == tamanho_item %}selected{% endif %}>{{ tamanho_item }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            
+                <div class="row mt-3">
+                    <div class="col-md-1 mt-2">
+                        <br>
+                        <span>Data de Entrega</span>
+                    </div>
+            
+                    <div class="col-md-2">
+                        <label for="data_inicio">De:</label>
+                        <input type="date" name="data_inicio" class="form-control" value="{{ data_inicio }}">
+                    </div>
+            
+                    <div class="col-md-2">
+                        <label for="data_fim">Até:</label>
+                        <input type="date" name="data_fim" class="form-control" value="{{ data_fim }}">
+                    </div>
+            
+                    <div class="col-md-1">
+                        <br>
+                        <button type="submit" class="btn btn-outline-danger form-control">Filtrar</button>
+                    </div>
+                </div>
+            </form>
+            
 
                 <br>
 
@@ -400,14 +406,22 @@
 
 
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
+    
 
-
-
-        $(document).ready(function() {
-            // Inicializa o selectpicker para permitir busca
-            $('#nave').selectpicker();
+    function getUrlParams() {
+        const params = new URLSearchParams(window.location.search);
+        let result = {};
+        params.forEach((value, key) => {
+            if (!result[key]) {
+                result[key] = [];
+            }
+            result[key].push(value);
         });
+        return result;
+    }
+
+
+document.addEventListener("DOMContentLoaded", function() {
 
         // Função para fazer a requisição AJAX e reorganizar as SubOFs
         function reorderSubOFs(ofmaeId) {
@@ -440,6 +454,38 @@
             const ofmaeId = ofmaeRow.id.split("-")[1];  // Pega o ID da OF Mãe da linha
             reorderSubOFs(ofmaeId);
         });
+
+        const params = getUrlParams();
+
+        // Preencher o campo 'nave'
+        const naveSelect = document.getElementById("nave");
+        if (naveSelect && params["nave"]) {
+            params["nave"].forEach(value => {
+                const option = Array.from(naveSelect.options).find(opt => opt.value === value);
+                if (option) {
+                    option.selected = true;
+                }
+            });
+        }
+
+        // Preencher o campo 'of_mae'
+        const ofMaeSelect = document.getElementById("of_mae");
+        if (ofMaeSelect && params["of_mae"]) {
+            params["of_mae"].forEach(value => {
+                const option = Array.from(ofMaeSelect.options).find(opt => opt.value === value);
+                if (option) {
+                    option.selected = true;
+                }
+            });
+            resetFields();
+        }
+
+        // Atualizar os campos de seleção com o plugin Bootstrap (se utilizado)
+        if ($ && $.fn.selectpicker) {
+            $('.selectpicker').selectpicker('refresh');
+        }
+
+
     });
     
     
@@ -449,6 +495,7 @@
         const modeloSelect = document.getElementById('modelo');
         const tamanhoSelect = document.getElementById('tamanho');
         const ofertaMaeSelect = document.getElementById('oferta_mae');
+
 
     // Quando a nave for selecionada
     naveSelect.addEventListener('change', function() {
@@ -466,29 +513,9 @@
     });
 
     // Quando a oferta mãe for selecionada
-    ofertaMaeSelect.addEventListener('change', function() {
-        // Lógica para atualizar outros campos, se necessário
-        updateOfertasFilhas();
-    });
 
-    function updateMarcas() {
-        let nave = naveSelect.value;
-        fetch(`/gestao-of/get-marcas/?nave=${nave}`)
-            .then(response => response.json())
-            .then(data => {
-                marcaSelect.innerHTML = '<option value="">Selecione uma marca</option>';
-                data.marcas.forEach(function(marca) {
-                    let option = document.createElement('option');
-                    option.value = marca;
-                    option.textContent = marca;
-                    marcaSelect.appendChild(option);
-                });
-                marcaSelect.disabled = !nave;
-                if (nave && marcaSelect.value !== '') {
-                    updateModelos();
-                }
-            });
-    }
+
+
 
     function updateModelos() {
         let marca = marcaSelect.value;
@@ -662,65 +689,56 @@
             });
         });
     });
+    function OFMaeChange() {
+        const marca = document.getElementById("marca");
+        const modelo = document.getElementById("modelo");
+        const tamanho = document.getElementById("tamanho");
+        const data_inicio = document.getElementById("data_inicio");
+        const data_fim = document.getElementById("data_fim");
+        const of_mae = document.getElementById("of_mae");
     
-        // Função que limpa e desabilita os campos
-    function resetFields() {
-        console.log('resetFields');
-        // Selecionar os campos que precisam ser limpos e desabilitados
-        const dataInicioField = document.querySelector('input[name="data_inicio"]');
-        const dataFimField = document.querySelector('input[name="data_fim"]');
-        const modeloField = document.querySelector('select[name="modelo"]');
-        const tamanhoField = document.querySelector('select[name="tamanho"]');
-        const marcaField = document.querySelector('select[name="marca"]');
-        const ofMaeField = document.querySelector('select[name="of_mae"]');
-            
-            // Limpar os campos
-        dataInicioField.value = '';
-        dataFimField.value = '';
-        modeloField.value = '';
-        tamanhoField.value = '';
-        marcaField.value = '';
-            
-            // Tornar os campos apenas leitura (readonly) ou desabilitar (disabled)
-        dataInicioField.setAttribute('readonly', true);
-        dataFimField.setAttribute('readonly', true);
-        modeloField.setAttribute('disabled', true);
-        tamanhoField.setAttribute('disabled', true);
-        marcaField.setAttribute('disabled', true);
-        }
+        // Lista de campos normais
+        const campos = [marca, modelo, tamanho, data_inicio, data_fim];
     
-        // Função que habilita os campos novamente
-    function enableFields() {
-            // Selecionar os campos que precisam ser habilitados
-        console.log('enableFields');
-        const dataInicioField = document.querySelector('input[name="data_inicio"]');
-        const dataFimField = document.querySelector('input[name="data_fim"]');
-        const modeloField = document.querySelector('select[name="modelo"]');
-        const tamanhoField = document.querySelector('select[name="tamanho"]');
-        const marcaField = document.querySelector('select[name="marca"]');
+        if (of_mae.value.trim() !== "") {
+            // Limpar e desabilitar os campos normais
+            campos.forEach(campo => {
+                campo.value = "";
+                campo.disabled = true;
+            });
     
-            // Remover o atributo readonly e habilitar os campos
-        dataInicioField.removeAttribute('readonly');
-        dataFimField.removeAttribute('readonly');
-        modeloField.removeAttribute('disabled');
-        tamanhoField.removeAttribute('disabled');
-        marcaField.removeAttribute('disabled');
-        }
+            // Ocultar todas as opções de "marca", exceto o placeholder
+            Array.from(marca.options).forEach(option => {
+                if (option.value.trim() !== "") {
+                    option.style.display = "none"; // Oculta a opção
+                }
+            });
     
-
-    function ofSelected () {
-        const ofMaeField = document.querySelector('select[name="of_mae"]');
-
-        if (ofMaeField.value) {
-            resetFields(); // Limpar e desabilitar os campos
-            console.log('ofMaeField.value');
+            marca.value = ""; // Limpa a seleção atual
+            $(marca).prop('disabled', true).selectpicker('refresh'); // Desabilita o campo e atualiza
         } else {
-            enableFields();  // Habilitar os campos novamente caso não tenha seleção
-            console.log('else');
-
+            // Habilitar os campos normais
+            campos.forEach(campo => {
+                campo.disabled = false;
+            });
+    
+            // Reexibir todas as opções de "marca"
+            Array.from(marca.options).forEach(option => {
+                option.style.display = ""; // Reexibe a opção
+            });
+    
+            $(marca).prop('disabled', false).selectpicker('refresh'); // Habilita o campo e atualiza
         }
+
+        //limpar as datas
+        data_inicio.value = "";
+        data_fim.value = "";
+
+        
     }
     
+    
+
 
 </script>
     

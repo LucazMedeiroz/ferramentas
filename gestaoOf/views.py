@@ -236,10 +236,10 @@ def producao_view(request):
         conn.close()
     
     
-    #data de hoje
-    data_inicio = time.strftime('%Y-%m-%d')
-    #data de hoje mais uma semana
-    data_fim = time.strftime('%Y-%m-%d', time.localtime(time.time() + 604800))
+    # Use as datas submetidas ou valores padrão
+    data_inicio = request.GET.get('data_inicio', datetime.now().strftime('%Y-%m-%d'))
+    data_fim = request.GET.get('data_fim', (datetime.now() + timedelta(days=7)).strftime('%Y-%m-%d'))
+
     
 
 
